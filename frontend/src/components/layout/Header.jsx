@@ -5,6 +5,7 @@ import DomIcon from '../icons/DomIcon'
 const navLinks = [
   { to: '/leistungen', label: 'Leistungen' },
   { to: '/referenzen', label: 'Referenzen' },
+  { to: '/produkte', label: 'Produkte' },
   { to: '/ueber-uns', label: 'Über uns' },
   { to: '/konfigurator', label: 'Konfigurator' },
   { to: '/kontakt', label: 'Kontakt' },

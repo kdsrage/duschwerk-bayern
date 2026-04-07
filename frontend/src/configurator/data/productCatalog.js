@@ -84,49 +84,57 @@ export const SERIEN = [
 // ─── Einbausituationen ───────────────────────────────────────
 export const EINBAUSITUATIONEN = [
   {
-    id: 'ecke',
-    name: 'Eckdusche',
-    description: 'Zwei Wände bilden die Ecke, Glas schließt vorne ab',
-    icon: 'corner',
-    kompatibleSerien: ['5000', '4000', '3000', '2000'],
-    kompatibleTuersysteme: ['Pendeltür', 'Schiebetür', 'Falttür', 'Drehtür'],
-  },
-  {
     id: 'nische',
-    name: 'Nischendusche',
-    description: 'Drei Wände, Glas nur vorne',
+    name: 'Nischenlösung',
+    description: 'Dusche zwischen zwei Wänden',
     icon: 'niche',
     kompatibleSerien: ['5000', '4000', '3000', '2000'],
-    kompatibleTuersysteme: ['Pendeltür', 'Schiebetür', 'Falttür', 'Drehtür'],
+    kompatibleTuersysteme: ['Pendeltür', 'Schiebetür', 'Falttür', 'Schwenktür'],
+  },
+  {
+    id: 'ecke',
+    name: 'Eckdusche',
+    description: 'Dusche mit zwei Glaswänden',
+    icon: 'corner',
+    kompatibleSerien: ['5000', '4000', '3000', '2000'],
+    kompatibleTuersysteme: ['Pendeltür', 'Schiebetür', 'Falttür', 'Schwenktür'],
   },
   {
     id: 'walkin',
-    name: 'Walk-In',
-    description: 'Offener Einstieg ohne Tür',
+    name: 'Walk-In Dusche',
+    description: 'Offene Dusche mit festem Glasteil',
     icon: 'walkin',
     kompatibleSerien: ['5000', '4000', 'walkin'],
     kompatibleTuersysteme: [], // Walk-In hat keine Tür
   },
   {
+    id: 'glaswand',
+    name: 'Glaswand',
+    description: 'Glaswand auf einer einzelnen Wand',
+    icon: 'special',
+    kompatibleSerien: ['5000', '4000'],
+    kompatibleTuersysteme: [],
+  },
+  {
     id: 'badewanne',
     name: 'Badewannenaufsatz',
-    description: 'Duschwand auf der Badewanne montiert',
+    description: 'Duschabtrennung auf bestehender Badewanne',
     icon: 'bathtub',
     kompatibleSerien: ['4000', '3000', 'badewanne'],
     kompatibleTuersysteme: ['Pendeltür', 'Falttür'],
-  },
-  {
-    id: 'sonder',
-    name: 'Sonderlösung',
-    description: 'Dachschräge, unregelmäßige Wände, Sonderformen',
-    icon: 'special',
-    kompatibleSerien: ['5000', '4000'],
-    kompatibleTuersysteme: ['Pendeltür', 'Schiebetür', 'Drehtür'],
   },
 ];
 
 // ─── Türsysteme ──────────────────────────────────────────────
 export const TUERSYSTEME = [
+  {
+    id: 'falt',
+    name: 'Falttür',
+    description: 'Faltet sich platzsparend zusammen',
+    minBreite: 70,
+    maxBreite: 140,
+    kompatibleRahmentypen: ['teilgerahmt', 'vollgerahmt'],
+  },
   {
     id: 'pendel',
     name: 'Pendeltür',
@@ -144,16 +152,8 @@ export const TUERSYSTEME = [
     kompatibleRahmentypen: ['teilgerahmt', 'vollgerahmt'],
   },
   {
-    id: 'falt',
-    name: 'Falttür',
-    description: 'Faltet sich platzsparend zusammen',
-    minBreite: 70,
-    maxBreite: 140,
-    kompatibleRahmentypen: ['teilgerahmt', 'vollgerahmt'],
-  },
-  {
-    id: 'dreh',
-    name: 'Drehtür',
+    id: 'schwenk',
+    name: 'Schwenktür',
     description: 'Klassische Öffnung nach außen',
     minBreite: 60,
     maxBreite: 100,
@@ -170,39 +170,66 @@ export const GLASTYPEN = [
     render: { color: '#ffffff', roughness: 0.0, transmission: 0.95, glasTyp: 'klarglas' },
   },
   {
-    id: 'satinato',
-    name: 'Satinato',
-    description: 'Mattiert, Sichtschutz mit Lichtdurchlass',
-    render: { color: '#e8eaf0', roughness: 0.8, transmission: 0.5, glasTyp: 'satinato' },
+    id: 'ultraclear',
+    name: 'UltraClear Glas',
+    description: 'Besonders klares, eisenreduziertes Glas',
+    render: { color: '#f8fffc', roughness: 0.0, transmission: 0.98, glasTyp: 'klarglas' },
   },
   {
-    id: 'parsol_bronze',
-    name: 'Parsol Bronze',
-    description: 'Getönt in warmem Bronze',
-    render: { color: '#CD7F32', roughness: 0.05, transmission: 0.75, glasTyp: 'parsol_bronze' },
-  },
-  {
-    id: 'parsol_grau',
-    name: 'Parsol Grau',
+    id: 'grauglas',
+    name: 'Grauglas',
     description: 'Getönt in elegantem Grau',
     render: { color: '#808080', roughness: 0.05, transmission: 0.75, glasTyp: 'parsol_grau' },
   },
   {
-    id: 'strukturglas',
-    name: 'Strukturglas',
-    description: 'Strukturierte Oberfläche für besonderen Effekt',
-    render: { color: '#f0f0f0', roughness: 0.15, transmission: 0.6, glasTyp: 'strukturglas' },
+    id: 'graphitglas',
+    name: 'Graphitglas',
+    description: 'Dunkle, anthrazitfarbene Tönung',
+    render: { color: '#444444', roughness: 0.05, transmission: 0.60, glasTyp: 'parsol_grau' },
+  },
+  {
+    id: 'braunglas',
+    name: 'Braunglas',
+    description: 'Warme Bronzetönung',
+    render: { color: '#CD7F32', roughness: 0.05, transmission: 0.70, glasTyp: 'parsol_bronze' },
+  },
+  {
+    id: 'spiegelglas',
+    name: 'Spiegelglas',
+    description: 'Spiegelnde Oberfläche (modellabhängig)',
+    render: { color: '#ccddee', roughness: 0.02, transmission: 0.30, glasTyp: 'satinato' },
     einschraenkungen: { nichtKompatibel: ['schiebe'] },
   },
 ];
 
 // ─── Profilfarben ────────────────────────────────────────────
+// Artweger Farben
+export const PROFILFARBEN_ARTWEGER = [
+  { id: 'silber-matt',     name: 'Silber matt',     swatch: '#C0C0C0', render: { color: '#C0C0C0', metalness: 0.85, roughness: 0.30, metalTyp: 'gebürstet' } },
+  { id: 'metall-hg',      name: 'Metall hochglanz', swatch: '#E8E8E8', render: { color: '#E8E8E8', metalness: 0.95, roughness: 0.03, metalTyp: 'poliert' } },
+  { id: 'weiss',           name: 'Weiß',             swatch: '#F5F5F5', render: { color: '#F5F5F5', metalness: 0.10, roughness: 0.60, metalTyp: 'matt' } },
+  { id: 'weiss-matt',      name: 'Weiß matt',        swatch: '#EEEEEE', render: { color: '#EEEEEE', metalness: 0.05, roughness: 0.80, metalTyp: 'matt' } },
+  { id: 'optic-bronze',    name: 'Optic Bronze',     swatch: '#8B6C42', render: { color: '#8B6C42', metalness: 0.85, roughness: 0.25, metalTyp: 'kupfer' } },
+  { id: 'optic-kupfer',    name: 'Optic Kupfer',     swatch: '#B87333', render: { color: '#B87333', metalness: 0.85, roughness: 0.30, metalTyp: 'kupfer' } },
+  { id: 'optic-nickel',    name: 'Optic Nickel',     swatch: '#A8A89A', render: { color: '#A8A89A', metalness: 0.88, roughness: 0.20, metalTyp: 'gebürstet' } },
+];
+
+// Radaway Farben
+export const PROFILFARBEN_RADAWAY = [
+  { id: 'chrom',           name: 'Chrom',                swatch: '#E8E8E8', render: { color: '#E8E8E8', metalness: 0.95, roughness: 0.03, metalTyp: 'poliert' } },
+  { id: 'schwarz',         name: 'Schwarz',               swatch: '#222222', render: { color: '#222222', metalness: 0.70, roughness: 0.45, metalTyp: 'matt' } },
+  { id: 'weiss-r',         name: 'Weiß',                  swatch: '#F5F5F5', render: { color: '#F5F5F5', metalness: 0.10, roughness: 0.60, metalTyp: 'matt' } },
+  { id: 'gold',            name: 'Gold',                  swatch: '#C5A55A', render: { color: '#C5A55A', metalness: 0.90, roughness: 0.18, metalTyp: 'gold' } },
+  { id: 'gold-gebürstet',  name: 'Gebürstetes Gold',      swatch: '#B8973A', render: { color: '#B8973A', metalness: 0.88, roughness: 0.25, metalTyp: 'gold' } },
+  { id: 'kupfer-gebürstet',name: 'Gebürstetes Kupfer',    swatch: '#A0634A', render: { color: '#A0634A', metalness: 0.85, roughness: 0.28, metalTyp: 'kupfer' } },
+  { id: 'nickel-gebürstet',name: 'Gebürstetes Nickel',   swatch: '#9A9A8A', render: { color: '#9A9A8A', metalness: 0.88, roughness: 0.22, metalTyp: 'gebürstet' } },
+  { id: 'gunmetal',        name: 'Gunmetal',              swatch: '#4A4A4A', render: { color: '#4A4A4A', metalness: 0.80, roughness: 0.35, metalTyp: 'matt' } },
+];
+
+// Kombiniert (für Konfigurator-Default)
 export const PROFILFARBEN = [
-  { id: 'chrom',      name: 'Chrom poliert',       swatch: '#E8E8E8', render: { color: '#E8E8E8', metalness: 0.95, roughness: 0.03, metalTyp: 'poliert' } },
-  { id: 'edelstahl',  name: 'Edelstahl gebürstet', swatch: '#AAAAAA', render: { color: '#AAAAAA', metalness: 0.90, roughness: 0.22, metalTyp: 'gebürstet' } },
-  { id: 'schwarz',    name: 'Schwarz matt',        swatch: '#222222', render: { color: '#222222', metalness: 0.70, roughness: 0.45, metalTyp: 'matt' } },
-  { id: 'gold',       name: 'Gold gebürstet',      swatch: '#C5A55A', render: { color: '#C5A55A', metalness: 0.90, roughness: 0.18, metalTyp: 'gold' } },
-  { id: 'kupfer',     name: 'Kupfer matt',         swatch: '#B87333', render: { color: '#B87333', metalness: 0.85, roughness: 0.30, metalTyp: 'kupfer' } },
+  ...PROFILFARBEN_ARTWEGER,
+  ...PROFILFARBEN_RADAWAY,
 ];
 
 // ─── Glasstärken ─────────────────────────────────────────────
@@ -214,9 +241,9 @@ export const GLASSTAERKEN = [
 
 // ─── Rahmentypen ─────────────────────────────────────────────
 export const RAHMENTYPEN = [
-  { id: 'rahmenlos',    name: 'Rahmenlos',     description: 'Minimalistisch, Glas pur' },
+  { id: 'vollgerahmt',  name: 'Vollrahmen',    description: 'Kompletter Rahmen rundum' },
   { id: 'teilgerahmt',  name: 'Teilgerahmt',   description: 'Profile oben und an den Seiten' },
-  { id: 'vollgerahmt',  name: 'Vollgerahmt',   description: 'Kompletter Rahmen rundum' },
+  { id: 'rahmenlos',    name: 'Rahmenlos',     description: 'Minimalistisch, Glas pur (nur auf Anfrage)' },
 ];
 
 // ─── Montagearten ────────────────────────────────────────────

@@ -10,7 +10,7 @@ const contactItems = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    content: <p className="text-gray-600 font-light text-sm">Musterstraße 1<br />12345 Regensburg</p>,
+    content: <p className="text-gray-600 font-light text-sm">Prüfeninger Straße 73<br />93049 Regensburg</p>,
   },
   {
     label: 'Telefon',

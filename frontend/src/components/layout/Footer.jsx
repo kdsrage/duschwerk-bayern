@@ -53,6 +53,7 @@ export default function Footer() {
                 { to: '/', label: 'Startseite' },
                 { to: '/leistungen', label: 'Leistungen' },
                 { to: '/referenzen', label: 'Referenzen' },
+                { to: '/produkte', label: 'Produkte' },
                 { to: '/ueber-uns', label: 'Über uns' },
                 { to: '/kontakt', label: 'Kontakt' },
               ].map(({ to, label }) => (
@@ -72,7 +73,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white/25 uppercase text-[10px] tracking-widest mb-5 font-medium">Kontakt</h4>
             <address className="not-italic text-sm text-white/40 space-y-2.5 font-light">
-              <p>Musterstraße 1, 12345 Regensburg</p>
+              <p>Prüfeninger Straße 73, 93049 Regensburg</p>
               <p>
                 <a href="tel:+491234567890" className="hover:text-white/70 transition-colors duration-200">
                   +49 (0) 123 456789

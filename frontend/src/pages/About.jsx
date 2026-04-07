@@ -2,31 +2,10 @@ import { Helmet } from 'react-helmet-async'
 import { Link } from 'react-router-dom'
 
 const values = [
-  { title: 'Präzision', desc: 'Jede Maßangabe wird exakt umgesetzt. Kein Spielraum für Kompromisse.' },
-  { title: 'Qualität', desc: 'Nur geprüfte Materialien und zertifiziertes Sicherheitsglas.' },
-  { title: 'Verlässlichkeit', desc: 'Vereinbarte Termine werden eingehalten – Punkt.' },
-  { title: 'Ehrlichkeit', desc: 'Transparente Angebote ohne versteckte Kosten.' },
-]
-
-const team = [
-  {
-    name: 'Thomas K.',
-    role: 'Inhaber & Experte',
-    desc: 'Spezialist für maßgeschneiderte Duschabtrennungen',
-    photo: 'photo-1472099645785-5658abf4ff4e',
-  },
-  {
-    name: 'Markus S.',
-    role: 'Monteur & Aufmessung',
-    desc: 'Präzisionsaufmessung und fachgerechte Montage',
-    photo: 'photo-1500648767791-00dcc994a43e',
-  },
-  {
-    name: 'Sarah M.',
-    role: 'Beratung & Planung',
-    desc: 'Ihr erster Ansprechpartner für alle Fragen',
-    photo: 'photo-1438761681033-6461ffad8d80',
-  },
+  { title: 'Persönliche Betreuung', desc: 'Vom ersten Gespräch bis zur fertigen Montage – immer ein direkter Ansprechpartner.' },
+  { title: 'Maßgefertigte Planung', desc: 'Jede Lösung wird individuell auf die räumlichen Gegebenheiten abgestimmt.' },
+  { title: 'Hochwertige Ausführung', desc: 'Ausgewählte Partnerfirmen und Hersteller für langlebige, technisch ausgereifte Lösungen.' },
+  { title: 'Langlebige Qualität', desc: 'Nur geprüfte Materialien – für Duschlösungen, die dauerhaft überzeugen.' },
 ]
 
 export default function About() {
@@ -34,7 +13,7 @@ export default function About() {
     <>
       <Helmet>
         <title>Über uns | Duschwerk Bayern Regensburg</title>
-        <meta name="description" content="Duschwerk Bayern Regensburg – Ihr Experte für maßgeschneiderte Duschabtrennungen mit hochwertigen Materialien und präziser Montage." />
+        <meta name="description" content="Duschwerk Bayern – Ihr Fachbetrieb für maßgefertigte Duschabtrennungen in Regensburg. Über 20 Jahre Erfahrung, persönliche Beratung, Komplettservice aus einer Hand." />
         <link rel="canonical" href="https://www.duschwerk-bayern.de/ueber-uns" />
       </Helmet>
 
@@ -46,36 +25,36 @@ export default function About() {
             Duschwerk Bayern.
           </h1>
           <p className="text-gray-500 max-w-lg text-base font-light leading-relaxed">
-            Präzise Duschabtrennungen vom Experten – mit hochwertigen Materialien und fachgerechter Montage in Regensburg und Bayern.
+            Fachbetrieb für maßgefertigte Duschabtrennungen – mit über 20 Jahren Erfahrung und persönlichem Komplettservice aus einer Hand.
           </p>
         </div>
       </div>
 
       <main>
 
-        {/* Story */}
+        {/* Firmenbeschreibung */}
         <section className="section-padding bg-white">
           <div className="container-max">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Unsere Geschichte</p>
+                <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Wer wir sind</p>
                 <h2 className="font-headline text-3xl sm:text-4xl text-primary mb-8" style={{ letterSpacing: '-0.03em' }}>
-                  Fokus auf das Wesentliche.
+                  Ihr Spezialist im Duschbereich.
                 </h2>
                 <div className="space-y-4 text-gray-500 leading-relaxed font-light text-sm">
                   <p>
-                    Duschwerk Bayern steht für maßgeschneiderte Duschabtrennungen nach höchsten Qualitätsstandards. Unser Fokus liegt zu 100 % auf Duschabtrennungen – von der Präzisionsaufmessung bis zur fachgerechten Montage.
+                    Duschwerk Bayern ist ein junges, modernes Unternehmen mit Sitz in Regensburg, das sich auf maßgeschneiderte Lösungen im Duschbereich spezialisiert hat. Trotz der noch jungen Unternehmensstruktur bringt das Team über 20 Jahre Erfahrung aus der Duschkabinen-Branche mit und verbindet dieses Know-how mit zeitgemäßen Konzepten und kundenorientiertem Service.
                   </p>
                   <p>
-                    Wir arbeiten ausschließlich mit geprüftem Sicherheitsglas und zertifizierten Beschlägen. Jede Abtrennung wird individuell geplant und exakt auf Ihr Bad abgestimmt – kein Standardprodukt, sondern Ihre Lösung.
+                    Ziel des Unternehmens ist es, für jede bauliche Situation sowie für jeden individuellen Wunsch eine optimale, funktionale und optisch ansprechende Lösung zu schaffen. Dabei begleitet Duschwerk Bayern seine Kunden von der ersten Beratung über das exakte Aufmaß bis hin zur zuverlässigen und sauberen Montage.
                   </p>
                   <p>
-                    Unser Anspruch: Eine Duschabtrennung, die perfekt passt – optisch, technisch und langfristig.
+                    Das Haupteinsatzgebiet liegt in Regensburg und im umliegenden Großraum. Darüber hinaus werden auf Anfrage auch Projekte in ganz Bayern realisiert.
                   </p>
                 </div>
               </div>
 
-              {/* Company photo + timeline */}
+              {/* Ausstellung + Fakten */}
               <div>
                 <div
                   className="rounded-2xl overflow-hidden mb-6"
@@ -83,25 +62,24 @@ export default function About() {
                 >
                   <img
                     src="https://images.unsplash.com/photo-1613685703305-a5e3da9b3a3d?auto=format&fit=crop&w=700&q=80"
-                    alt="Duschwerk Bayern – Unser Team bei der Arbeit"
+                    alt="Duschwerk Bayern – Ausstellung Regensburg"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
                 </div>
                 <div className="space-y-0">
                   {[
-                    { year: '2015', event: 'Gründung von Duschwerk Bayern in Regensburg' },
-                    { year: '2017', event: 'Spezialisierung auf maßgefertigte Duschabtrennungen' },
-                    { year: '2019', event: 'Einführung der Präzisionsaufmessung vor Ort' },
-                    { year: '2022', event: 'Erweiterung des Montageteams' },
-                    { year: '2025', event: 'Über 300 erfolgreich montierte Duschabtrennungen' },
-                  ].map(({ year, event }, i, arr) => (
+                    { label: 'Erfahrung', value: 'Über 20 Jahre im Bereich Duschkabinen' },
+                    { label: 'Ausstellung', value: 'Prüfeninger Straße 73, 93049 Regensburg' },
+                    { label: 'Beratung', value: 'Beim Kunden oder in der Ausstellung' },
+                    { label: 'Einsatzgebiet', value: 'Großraum Regensburg & ganz Bayern' },
+                  ].map(({ label, value }, i, arr) => (
                     <div
-                      key={year}
+                      key={label}
                       className={`flex gap-5 py-4 ${i < arr.length - 1 ? 'border-b border-gray-100' : ''}`}
                     >
-                      <span className="font-semibold text-gray-300 text-xs w-10 flex-shrink-0 pt-0.5">{year}</span>
-                      <p className="text-gray-500 text-sm font-light">{event}</p>
+                      <span className="font-semibold text-gray-300 text-xs w-24 flex-shrink-0 pt-0.5">{label}</span>
+                      <p className="text-gray-500 text-sm font-light">{value}</p>
                     </div>
                   ))}
                 </div>
@@ -110,45 +88,52 @@ export default function About() {
           </div>
         </section>
 
-        {/* Team */}
+        {/* Komplettservice */}
         <section className="section-padding" style={{ background: '#F5F5F5' }}>
           <div className="container-max">
             <header className="mb-12">
-              <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Team</p>
+              <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Unser Angebot</p>
               <h2 className="font-headline text-3xl text-primary" style={{ letterSpacing: '-0.03em' }}>
-                Die Menschen dahinter.
+                Komplettservice aus einer Hand.
               </h2>
             </header>
-
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {team.map(({ name, role, desc, photo }) => (
-                <article key={name} className="card-3d overflow-hidden">
-                  <div className="h-56 overflow-hidden">
-                    <img
-                      src={`https://images.unsplash.com/${photo}?auto=format&fit=crop&w=500&q=80`}
-                      alt={name}
-                      className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
-                      loading="lazy"
-                    />
+              {[
+                {
+                  title: 'Beratung',
+                  desc: 'Persönliche Beratung direkt beim Kunden zu Hause oder in unserer Ausstellung in Regensburg – flexibel und unverbindlich.',
+                },
+                {
+                  title: 'Aufmaß vor Ort',
+                  desc: 'Präzises Aufmaß durch unser Fachpersonal – damit jede Duschabtrennung exakt passt und technisch einwandfrei ist.',
+                },
+                {
+                  title: 'Montage',
+                  desc: 'Fachgerechte Montage durch langjährige, erfahrene Subunternehmer – sauber, termintreu und zuverlässig.',
+                },
+              ].map(({ title, desc }) => (
+                <article key={title} className="card-3d p-7">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center mb-4"
+                    style={{ background: '#EEF1F6', borderRadius: '8px' }}
+                  >
+                    <span className="font-headline text-sm text-gray-400 font-semibold">{title[0]}</span>
                   </div>
-                  <div className="p-6">
-                    <h3 className="font-headline text-base text-primary font-semibold tracking-tight">{name}</h3>
-                    <p className="text-gray-400 text-[10px] font-medium mt-1 mb-2 uppercase tracking-wider">{role}</p>
-                    <p className="text-gray-500 text-sm font-light">{desc}</p>
-                  </div>
+                  <h3 className="font-semibold text-primary text-sm tracking-tight mb-2">{title}</h3>
+                  <p className="text-gray-500 text-sm font-light leading-relaxed">{desc}</p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Values */}
+        {/* Werte */}
         <section className="section-padding bg-white">
           <div className="container-max">
             <header className="mb-12">
               <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Werte</p>
               <h2 className="font-headline text-3xl text-primary" style={{ letterSpacing: '-0.03em' }}>
-                Was uns ausmacht.
+                Wofür Duschwerk Bayern steht.
               </h2>
             </header>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -176,7 +161,7 @@ export default function About() {
         <div className="container-max">
           <p className="text-white/40 text-xs uppercase tracking-widest font-medium mb-3">Kontakt</p>
           <h2 className="font-headline text-3xl text-white mb-4" style={{ letterSpacing: '-0.03em' }}>Lernen Sie uns kennen.</h2>
-          <p className="text-white/50 mb-10 max-w-md mx-auto font-light text-sm">Wir beraten Sie gerne – kostenlos und unverbindlich.</p>
+          <p className="text-white/50 mb-10 max-w-md mx-auto font-light text-sm">Wir beraten Sie gerne – kostenlos und unverbindlich, bei Ihnen vor Ort oder in unserer Ausstellung.</p>
           <Link to="/kontakt" className="btn-silver px-10 py-4 text-sm">Kontakt aufnehmen</Link>
         </div>
       </section>

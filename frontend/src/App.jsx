@@ -9,6 +9,7 @@ import References from './pages/References'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Configurator from './pages/Configurator'
+import Products from './pages/Products'
 import { useScrollReveal } from './hooks/useScrollReveal'
 import { usePageTransition } from './hooks/usePageTransition'
 
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="/ueber-uns" element={<About />} />
             <Route path="/kontakt" element={<Contact />} />
             <Route path="/konfigurator" element={<Configurator />} />
+            <Route path="/produkte" element={<Products />} />
           </Routes>
         </main>
         <Footer />

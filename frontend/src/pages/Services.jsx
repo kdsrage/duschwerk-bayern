@@ -3,52 +3,53 @@ import { Link } from 'react-router-dom'
 
 const servicePhotos = [
   'photo-1552321554-5fefe8c9ef14',  // walk-in shower
-  'photo-1507652313519-d4e9174996dd', // measuring
-  'photo-1600566752355-35792bedcfea', // installation
-  'photo-1584622650111-993a426fbf0a', // consultation / bathroom
+  'photo-1584622650111-993a426fbf0a', // bathroom renovation
+  'photo-1507652313519-d4e9174996dd', // accessories
 ]
 
 const services = [
   {
     id: 'duschabtrennungen',
-    title: 'Duschabtrennungen nach Maß',
-    description: 'Ob rahmenlos, halbgerahmt oder gerahmt – wir fertigen Ihre Duschabtrennung exakt nach Ihren Wünschen. Maßgeschneiderte Lösungen für jede Badsituation.',
-    features: ['Rahmenlose Ausführungen', 'Halbgerahmte Modelle', 'Walk-in-Duschen', 'Drehtüren & Schiebetüren', 'Nischenlösungen', 'Sondermaße & Sonderformen'],
+    title: 'Maßgefertigte Duschabtrennungen',
+    description: 'Der Schwerpunkt von Duschwerk Bayern liegt auf der Planung und Umsetzung maßgefertigter Duschabtrennungen. Jede Dusche wird individuell an die räumlichen Gegebenheiten sowie an die gestalterischen Vorstellungen der Kunden angepasst.',
+    features: ['Nischenlösung', 'Eckdusche', 'Walk-In Dusche', 'Glaswand (einzelne Wand)', 'Badewannenaufsatz', 'Beratung & Aufmaß vor Ort'],
     icon: '🚿',
   },
   {
-    id: 'aufmessung',
-    title: 'Präzisionsaufmessung',
-    description: 'Jede maßgeschneiderte Duschabtrennung beginnt mit einer exakten Aufmessung vor Ort. Wir erfassen alle Maße präzise – für eine passgenaue Fertigung ohne Nacharbeiten.',
-    features: ['Aufmessung beim Kunden vor Ort', 'Schrägen & Nischenmaße', 'Bodenunebenheiten', 'Digitale Dokumentation', 'Sofortige Machbarkeitseinschätzung', 'Unverbindliche Beratung'],
-    icon: '📐',
-  },
-  {
-    id: 'montage',
-    title: 'Fachgerechte Montage',
-    description: 'Professionelle Montage durch erfahrene Fachkräfte. Hochwertige Materialien werden fachgerecht verarbeitet – sauber, termintreu, ohne Schmutz.',
-    features: ['Professionelle Montage', 'Saubere Ausführung', 'Dichtungen inbegriffen', 'Beschlag- & Profilmontage', 'Funktionsprüfung vor Ort', 'Einweisung nach Montage'],
+    id: 'teilsanierung',
+    title: 'Badewanne zur Dusche umbauen',
+    description: 'Ein wichtiger Leistungsbereich ist der Umbau bestehender Badewannen zu modernen und komfortablen Duschanlagen. Passende Duschwannen, Wandpaneele sowie Armaturen werden geliefert und durch langjährige Subunternehmer fachgerecht montiert.',
+    features: ['Duschwannen', 'Wandpaneele (Artwall)', 'Armaturen', 'Altersgerechter Umbau', 'Schnelle Umsetzung', 'Minimaler Eingriff in Bausubstanz'],
     icon: '🔧',
   },
   {
-    id: 'beratung',
-    title: 'Beratung & Planung',
-    description: 'Individuelle Beratung zu Glasart, Rahmen, Beschlägen und Design. Kostenlos und unverbindlich – damit Sie die beste Lösung für Ihr Bad finden.',
-    features: ['Kostenlose Erstberatung', 'Glasarten & Stärken', 'Rahmen- & Profilwahl', 'Beschlag- & Griffauswahl', 'Klarglas, Satinato, Strukturglas', 'Visualisierung der Lösung'],
-    icon: '💬',
+    id: 'zubehoer',
+    title: 'Zubehör & Ergänzungen',
+    description: 'Ergänzend werden verschiedene Zubehörartikel und praktische Ergänzungen für den Duschbereich angeboten – für eine komfortable Nutzung und langfristige Pflege der Dusche.',
+    features: ['Duschabzieher', 'Reinigungsprodukte', 'Handtuchhalter', 'Funktionale Ausstattungselemente', 'Hochwertige Markenprodukte', 'Auf Anfrage erhältlich'],
+    icon: '✨',
   },
+]
+
+const ablaufSteps = [
+  { nr: '01', title: 'Anfrage', desc: 'Sie nehmen Kontakt auf – telefonisch, per E-Mail oder über das Kontaktformular.' },
+  { nr: '02', title: 'Beratung', desc: 'Persönliche Beratung direkt bei Ihnen oder in unserer Ausstellung in Regensburg.' },
+  { nr: '03', title: 'Aufmaß', desc: 'Präzises Aufmaß durch unser Fachpersonal vor Ort – für eine passgenaue Planung.' },
+  { nr: '04', title: 'Angebot', desc: 'Sie erhalten ein individuelles Angebot auf Basis Ihrer Wünsche und des Aufmaßes.' },
+  { nr: '05', title: 'Bestellung', desc: 'Nach Ihrer Freigabe wird die Duschlösung bestellt und termingerecht geliefert.' },
+  { nr: '06', title: 'Montage', desc: 'Fachgerechte Montage durch erfahrene Monteure – sauber und termintreu.' },
 ]
 
 export default function Services() {
   return (
     <>
       <Helmet>
-        <title>Leistungen | Duschwerk Bayern – Maßgeschneiderte Duschabtrennungen</title>
-        <meta name="description" content="Maßgeschneiderte Duschabtrennungen, Präzisionsaufmessung, fachgerechte Montage mit hochwertigen Materialien – alles aus einer Hand von Duschwerk Bayern Regensburg." />
+        <title>Leistungen | Duschwerk Bayern – Duschabtrennungen & Badumbau</title>
+        <meta name="description" content="Maßgefertigte Duschabtrennungen, Badewanne zur Dusche umbauen, Zubehör – Komplettservice aus einer Hand von Duschwerk Bayern in Regensburg." />
         <link rel="canonical" href="https://www.duschwerk-bayern.de/leistungen" />
       </Helmet>
 
-      {/* Page Hero – zentriert */}
+      {/* Page Hero */}
       <div className="page-hero text-center">
         <div className="container-max">
           <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Leistungen</p>
@@ -56,14 +57,14 @@ export default function Services() {
             Unsere Leistungen.
           </h1>
           <p className="text-gray-500 max-w-lg mx-auto text-base font-light leading-relaxed">
-            Von der Aufmessung bis zur Montage – maßgeschneiderte Duschabtrennungen mit hochwertigen Materialien.
+            Von der persönlichen Beratung über das Aufmaß bis zur fachgerechten Montage – alles aus einer Hand.
           </p>
         </div>
       </div>
 
       <main className="section-padding" style={{ background: '#F2F2F2' }}>
         <div className="container-max">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map(({ id, title, description, features, icon }, index) => (
               <article key={id} id={id} className="card-3d overflow-hidden flex flex-col">
                 {/* Photo */}
@@ -76,7 +77,7 @@ export default function Services() {
                   />
                 </div>
 
-                {/* Content – zentriert */}
+                {/* Content */}
                 <div className="p-8 text-center flex flex-col flex-1">
                   <span className="text-gray-300 text-[10px] font-semibold tracking-widest uppercase mb-3 block">0{index + 1}</span>
                   <div className="text-3xl mb-3">{icon}</div>
@@ -105,6 +106,30 @@ export default function Services() {
         </div>
       </main>
 
+      {/* Ablauf */}
+      <section className="section-padding bg-white">
+        <div className="container-max">
+          <header className="mb-12 text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-widest font-medium mb-3">Ablauf</p>
+            <h2 className="font-headline text-3xl text-primary" style={{ letterSpacing: '-0.03em' }}>
+              So funktioniert Ihr Weg zur neuen Dusche.
+            </h2>
+          </header>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ablaufSteps.map(({ nr, title, desc }) => (
+              <div key={nr} className="card-3d p-7">
+                <span className="text-gray-200 text-2xl font-bold font-headline block mb-3">{nr}</span>
+                <h3 className="font-semibold text-primary text-sm tracking-tight mb-2">{title}</h3>
+                <p className="text-gray-500 text-sm font-light leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-gray-400 text-xs mt-8 font-light">
+            Hinweis: Das finale Aufmaß erfolgt immer durch unser Fachpersonal.
+          </p>
+        </div>
+      </section>
+
       <section className="section-padding" style={{ background: 'linear-gradient(135deg, #1F2E4A 0%, #2E4C7D 100%)' }}>
         <div className="container-max text-center">
           <p className="text-white/40 text-xs uppercase tracking-widest font-medium mb-3">Beratung</p>
@@ -112,7 +137,7 @@ export default function Services() {
             Nicht sicher, welche Lösung passt?
           </h2>
           <p className="text-white/50 mb-10 max-w-md mx-auto font-light text-sm">
-            Wir beraten Sie kostenlos und finden gemeinsam die optimale Duschabtrennung.
+            Wir beraten Sie kostenlos und finden gemeinsam die optimale Duschlösung für Ihre Situation.
           </p>
           <Link to="/kontakt" className="btn-silver px-10 py-4 text-sm">Beratung anfragen</Link>
         </div>
