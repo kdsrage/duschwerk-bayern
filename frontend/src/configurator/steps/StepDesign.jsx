@@ -100,9 +100,6 @@ export default function StepDesign({ config, setField, options, corrections }) {
       {/* ── Profilfarbe ───────────────────────── */}
       <div className="design-group">
         <div className="design-group-label">Profilfarbe</div>
-        {hoveredProfil && (
-          <div className="profil-hover-name">{options.profilfarben.find(p => p.id === hoveredProfil)?.name}</div>
-        )}
         <div className="profil-swatch-grid">
           {options.profilfarben.map(p => {
             const active = config.profilfarbe === p.id;
@@ -130,11 +127,13 @@ export default function StepDesign({ config, setField, options, corrections }) {
             );
           })}
         </div>
-        {config.profilfarbe && !hoveredProfil && (
-          <div className="profil-selected-name">
-            Gewählt: {options.profilfarben.find(p => p.id === config.profilfarbe)?.name}
-          </div>
-        )}
+        <div className="profil-selected-name">
+          {hoveredProfil
+            ? options.profilfarben.find(p => p.id === hoveredProfil)?.name
+            : config.profilfarbe
+              ? `Gewählt: ${options.profilfarben.find(p => p.id === config.profilfarbe)?.name}`
+              : '\u00A0'}
+        </div>
       </div>
     </div>
   );
