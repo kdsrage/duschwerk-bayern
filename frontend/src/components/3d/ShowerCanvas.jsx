@@ -193,7 +193,7 @@ export default function ShowerCanvas({ config, isComplete }) {
       </Suspense>
 
       {/* Zoom-Buttons: + oben, − unten */}
-      <div className="canvas-controls">
+      <div className="canvas-controls" onPointerDown={(e) => e.stopPropagation()}>
         <button className="zoom-btn" title="Vergrößern (Zoom In)" onClick={zoomIn}>+</button>
         <button className="zoom-btn" title="Verkleinern (Zoom Out)" onClick={zoomOut}>−</button>
       </div>
