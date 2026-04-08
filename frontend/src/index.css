@@ -244,7 +244,7 @@
   .glass-noise::before { display: none; }
 }
 
-/* ── Nav Link Click Underline ────────────────────── */
+/* ── Nav Link Hover/Click Underline ──────────────── */
 .nav-link {
   position: relative;
 }
@@ -258,10 +258,16 @@
   background: #C62828;
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.nav-link:active::after {
+/* Hover: Unterstreichung erscheint */
+.nav-link:hover::after {
   transform: scaleX(1);
+}
+/* Klick: Unterstreichung verschwindet, aber mit Verzögerung */
+.nav-link:active::after {
+  transform: scaleX(0);
+  transition: transform 0.35s ease 0.28s;
 }
 
 /* ── Scroll hint pulse ───────────────────────────── */
