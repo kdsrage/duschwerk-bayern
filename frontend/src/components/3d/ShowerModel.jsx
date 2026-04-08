@@ -102,54 +102,34 @@ function getTrayTex() {
   return (_trayTex = tex);
 }
 
-const getFloorTex = getTrayTex;
-
-// ── Statische Materialien ────────────────────────────────────
-let _wMat = null, _tMat = null, _drainMat = null, _rainMat = null;
-const getWMat = () => _wMat || (_wMat = new THREE.MeshStandardMaterial({
-  map: getWallTex(), roughness: 0.12, metalness: 0.02, envMapIntensity: 0.55,
-}));
-// Polierter Anthrazit-Stein für Duschwanne
-const getTMat = () => _tMat || (_tMat = new THREE.MeshStandardMaterial({
-  map: getTrayTex(), roughness: 0.06, metalness: 0.08, envMapIntensity: 0.70,
-}));
-const getDrainMat = () => _drainMat || (_drainMat = new THREE.MeshStandardMaterial({
-  color: '#888888', metalness: 0.95, roughness: 0.08, envMapIntensity: 1.2,
-}));
-// Schwarzes Metall für Regendusche
-const getRainMat = () => _rainMat || (_rainMat = new THREE.MeshStandardMaterial({
-  color: '#141414', metalness: 0.82, roughness: 0.22, envMapIntensity: 0.8,
-}));
+// Inline JSX-Materialien werden weiter unten direkt in den Meshes definiert.
+// Keine Singletons für statische Materialien — verhindert R3F-Cleanup-Crash.
 
 // ── Decken-Regendusche (schwarzes Design) ────────────────────
 function RainShower({ w, h }) {
-  const headW  = Math.min(w * 0.42, 0.38);  // Kopfbreite max 38cm
-  const headD  = Math.min(D * 0.44, 0.28);  // Kopftiefe max 28cm
-  const armLen = 0.28;                        // Arm-Länge an Rückwand
-  const topY   = h / 2;                       // Deckenebene (lokal)
-  const backZ  = -(D + WT / 2) + WT / 2 + armLen / 2;
+  const headW  = Math.min(w * 0.42, 0.38);
+  const headD  = Math.min(D * 0.44, 0.28);
+  const armLen = 0.28;
+  const topY   = h / 2;
+  const headZ  = -(D - armLen) + 0.01;
 
   return (
     <group>
-      {/* Deckenarm (von Rückwand nach vorne) */}
       <mesh position={[0, topY - 0.018, -(D - armLen / 2)]}>
         <boxGeometry args={[0.020, 0.020, armLen]} />
-        <primitive object={getRainMat()} attach="material" />
+        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
       </mesh>
-      {/* Verbindungsstück Arm → Kopf */}
-      <mesh position={[0, topY - 0.055, -(D - armLen) + 0.01]}>
+      <mesh position={[0, topY - 0.055, headZ]}>
         <boxGeometry args={[0.020, 0.074, 0.020]} />
-        <primitive object={getRainMat()} attach="material" />
+        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
       </mesh>
-      {/* Regenbrause-Kopf (flach, rechteckig) */}
-      <mesh castShadow position={[0, topY - 0.094, -(D - armLen) + 0.01]}>
+      <mesh castShadow position={[0, topY - 0.094, headZ]}>
         <boxGeometry args={[headW, 0.016, headD]} />
-        <primitive object={getRainMat()} attach="material" />
+        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
       </mesh>
-      {/* Düsengitter — leicht dunklere Unterseite */}
-      <mesh position={[0, topY - 0.103, -(D - armLen) + 0.01]}>
+      <mesh position={[0, topY - 0.103, headZ]}>
         <boxGeometry args={[headW - 0.012, 0.002, headD - 0.012]} />
-        <primitive object={getDrainMat()} attach="material" />
+        <meshStandardMaterial color="#888888" metalness={0.95} roughness={0.08} envMapIntensity={1.2} />
       </mesh>
     </group>
   );
@@ -163,55 +143,44 @@ function ShowerEnclosure({ w, h }) {
   const rightX =  w / 2 + WT / 2;
   const floorY = -h / 2 - TH / 2;
 
+  const wallTex  = getWallTex();
+  const trayTex  = getTrayTex();
+
   return (
     <group>
       {/* Rückwand */}
       <mesh receiveShadow position={[0, 0, backZ]}>
         <boxGeometry args={[w + WT * 2, h, WT]} />
-        <primitive object={getWMat()} attach="material" />
+        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
       </mesh>
       {/* Linke Wand */}
       <mesh receiveShadow position={[leftX, 0, sideZ]}>
         <boxGeometry args={[WT, h, D]} />
-        <primitive object={getWMat()} attach="material" />
+        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
       </mesh>
       {/* Rechte Wand */}
       <mesh receiveShadow position={[rightX, 0, sideZ]}>
         <boxGeometry args={[WT, h, D]} />
-        <primitive object={getWMat()} attach="material" />
+        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
       </mesh>
-      {/* ── Moderne Duschwanne (polierter Anthrazit-Stein) ── */}
-      {/* Wannenkörper */}
+
+      {/* Duschwanne (polierter Anthrazit) */}
       <mesh receiveShadow position={[0, floorY, sideZ]}>
         <boxGeometry args={[w + WT * 2 + 0.01, TH, D + WT + 0.01]} />
-        <primitive object={getTMat()} attach="material" />
+        <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
       </mesh>
-      {/* Vordere Lippe / Stufe (sichtbare Kante zur Glasfront) */}
+      {/* Vordere Wannenlippe */}
       <mesh position={[0, -h / 2 + 0.008, -0.006]}>
         <boxGeometry args={[w + WT * 2 + 0.01, 0.016, 0.012]} />
-        <primitive object={getTMat()} attach="material" />
+        <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
       </mesh>
-      {/* ── Rinnenablauf (Rinne an Rückwand) ── */}
-      {/* Rinnen-Schlitz */}
-      <mesh position={[0, -h / 2 + 0.004, -(D - 0.032)]}>
-        <boxGeometry args={[w * 0.90, 0.008, 0.038]} />
-        <primitive object={getTMat()} attach="material" />
+
+      {/* Rinnenablauf-Abdeckung (Edelstahl) */}
+      <mesh position={[0, -h / 2 + 0.006, -(D - 0.032)]}>
+        <boxGeometry args={[w * 0.85, 0.003, 0.034]} />
+        <meshStandardMaterial color="#909090" metalness={0.95} roughness={0.08} envMapIntensity={1.2} />
       </mesh>
-      {/* Edelstahl-Abdeckrost */}
-      <mesh position={[0, -h / 2 + 0.008, -(D - 0.032)]}>
-        <boxGeometry args={[w * 0.90, 0.002, 0.036]} />
-        <primitive object={getDrainMat()} attach="material" />
-      </mesh>
-      {/* Rost-Stäbe (dekorativ) */}
-      {Array.from({ length: Math.floor(w * 9) }, (_, i, arr) => {
-        const x = -w * 0.45 + i * (w * 0.90 / (arr.length - 1));
-        return (
-          <mesh key={i} position={[x, -h / 2 + 0.009, -(D - 0.032)]}>
-            <boxGeometry args={[0.004, 0.002, 0.030]} />
-            <primitive object={getDrainMat()} attach="material" />
-          </mesh>
-        );
-      })}
+
       {/* Decken-Regendusche */}
       <RainShower w={w} h={h} />
     </group>
