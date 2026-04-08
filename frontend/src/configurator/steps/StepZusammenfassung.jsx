@@ -173,7 +173,7 @@ export default function StepZusammenfassung({ summary, validation, onSubmit, onR
 
         <div className="form-row-2col">
           <div className="form-field">
-            <label className="form-label">Name *</label>
+            <label className="form-label">Name <span style={{ color: '#C62828' }}>*</span></label>
             <input
               className="form-input"
               placeholder="Vor- und Nachname"
@@ -195,7 +195,7 @@ export default function StepZusammenfassung({ summary, validation, onSubmit, onR
         </div>
 
         <div className="form-field">
-          <label className="form-label">E-Mail *</label>
+          <label className="form-label">E-Mail <span style={{ color: '#C62828' }}>*</span></label>
           <input
             className="form-input"
             type="email"
