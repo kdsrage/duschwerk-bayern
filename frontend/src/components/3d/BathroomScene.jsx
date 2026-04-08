@@ -6,7 +6,7 @@ import * as THREE from 'three';
  */
 export default function BathroomScene({ showerWidth = 1.2, showerHeight = 2.0 }) {
   const h      = showerHeight;
-  const floorY = -h - 0.06; // direkt unter Wannenboden (TH=0.055)
+  const floorY = -h - 0.18; // tief genug für ±22° Rotation ohne Clipping
 
   return (
     <group>

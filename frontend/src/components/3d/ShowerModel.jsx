@@ -166,7 +166,7 @@ function ShowerEnclosure({ w, h }) {
 
       {/* Duschwanne (polierter Anthrazit) — Rückseite bündig mit Außenwand */}
       <mesh receiveShadow position={[0, floorY, -(D / 2 + WT / 2)]}>
-        <boxGeometry args={[w + WT * 2 + 0.01, TH, D + WT * 2 + 0.01]} />
+        <boxGeometry args={[w + WT * 2 + 0.01, TH, D + WT + 0.01]} />
         <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
       </mesh>
       {/* Vordere Wannenlippe */}
@@ -182,13 +182,13 @@ function ShowerEnclosure({ w, h }) {
       </mesh>
 
       {/* Abflussdeckel (rund, Edelstahl-Silber) — flach auf Wannenoberfläche */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -h / 2 + 0.001, -(D / 2)]}>
+      <mesh position={[0, -h / 2 + 0.001, -(D / 2)]}>
         <cylinderGeometry args={[0.055, 0.055, 0.003, 24]} />
         <meshStandardMaterial color="#c0c0c0" metalness={0.96} roughness={0.10} envMapIntensity={1.4} />
       </mesh>
       {/* Ablauf-Gitter (kreuzförmige Schlitze als dünne Streben) */}
       {[0, Math.PI / 2].map((rot, i) => (
-        <mesh key={i} rotation={[-Math.PI / 2, rot, 0]} position={[0, -h / 2 + 0.003, -(D / 2)]}>
+        <mesh key={i} rotation={[0, rot, 0]} position={[0, -h / 2 + 0.003, -(D / 2)]}>
           <boxGeometry args={[0.100, 0.004, 0.004]} />
           <meshStandardMaterial color="#888888" metalness={0.90} roughness={0.18} />
         </mesh>
