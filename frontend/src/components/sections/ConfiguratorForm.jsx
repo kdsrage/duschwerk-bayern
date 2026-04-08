@@ -173,7 +173,7 @@ export default function ConfiguratorForm({ config }) {
           <span className="text-xs text-gray-400 leading-relaxed font-light">
             Ich stimme der{' '}
             <a href="/datenschutz" target="_blank" rel="noopener noreferrer"
-               className="text-primary underline hover:text-gray-600 transition-colors">
+               className="text-primary underline transition-colors" style={{ textUnderlineOffset: '2px' }}>
               Datenschutzerklärung
             </a>{' '}
             zu. <span className="text-gray-300">*</span>

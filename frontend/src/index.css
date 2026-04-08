@@ -1181,8 +1181,12 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .privacy-note { font-size: 11px; color: #B0B8C4; margin: 0; text-align: center; line-height: 1.5; }
-.privacy-link { color: #8892A4; text-decoration: underline; text-underline-offset: 2px; }
-.privacy-link:hover { color: #1F2E4A; }
+.privacy-link { color: #8892A4; text-decoration: underline; text-underline-offset: 2px; transition: color 0.2s; }
+.privacy-link:hover { color: #C62828; }
+
+/* All Datenschutz links site-wide */
+a[href="/datenschutz"] { transition: color 0.2s; }
+a[href="/datenschutz"]:hover { color: #C62828 !important; }
 
 /* ── Success State ──────────────────────── */
 .success-state { text-align: center; padding: 40px 16px; }
