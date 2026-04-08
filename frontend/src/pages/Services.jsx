@@ -141,8 +141,8 @@ export default function Services() {
               </div>
             ))}
           </div>
-          <p className="text-center text-xs mt-8 font-medium" style={{ color: '#C62828' }}>
-            Hinweis: Das finale Aufmaß erfolgt immer durch unser Fachpersonal.
+          <p className="text-center text-gray-400 text-xs mt-8 font-light">
+            <span className="font-semibold" style={{ color: '#C62828' }}>Hinweis:</span>{' '}Das finale Aufmaß erfolgt immer durch unser Fachpersonal.
           </p>
         </div>
       </section>
