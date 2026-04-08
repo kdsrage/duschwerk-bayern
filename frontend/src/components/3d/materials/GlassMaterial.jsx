@@ -33,21 +33,18 @@ function getSatinatoMap() {
 export function useGlassMaterial() {
   const mat = useRef(
     new THREE.MeshPhysicalMaterial({
-      color:               new THREE.Color('#ffffff'),
-      transmission:        0.98,
-      roughness:           0.02,
-      metalness:           0.0,
-      ior:                 1.38,              // reduziert Fresnel-Reflexion beim Drehen
-      thickness:           0.6,
-      attenuationDistance: 2.0,
-      attenuationColor:    new THREE.Color('#ddeeff'),
-      envMapIntensity:     0.06,             // sehr niedrig → kein Spiegel-Effekt
-      specularIntensity:   0.25,             // reduziert Glanzlichter
-      clearcoat:           0.0,
-      transparent:         true,
-      opacity:             1.0,
-      side:                THREE.FrontSide,
-      depthWrite:          false,
+      color:             new THREE.Color('#cdeef8'),
+      transmission:      0,        // opacity-basiert, kein PBR-Transmission-Pass
+      roughness:         0.0,
+      metalness:         0.0,
+      ior:               1.52,
+      thickness:         0,
+      envMapIntensity:   0.10,
+      specularIntensity: 0.4,
+      transparent:       true,
+      opacity:           0.18,
+      side:              THREE.FrontSide,
+      depthWrite:        false,
     })
   );
   return mat;
@@ -56,103 +53,76 @@ export function useGlassMaterial() {
 export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
   const op = Math.max(0, Math.min(1, opacity));
 
-  // Always reset maps first
-  mat.roughnessMap     = null;
-  mat.normalMap        = null;
-  mat.specularIntensity = 0.25;  // global: Reflexionen beim Drehen dämpfen
-  mat.ior              = 1.38;   // niedrig → weniger Fresnel-Spiegelung
+  // Alle Glastypen: transmission=0, opacity-basiert → kein Doppelbild, immer durchsichtig
+  mat.transmission        = 0;
+  mat.thickness           = 0;
+  mat.attenuationDistance = 10.0;
+  mat.attenuationColor.set('#ffffff');
+  mat.roughnessMap        = null;
+  mat.normalMap           = null;
+  mat.metalness           = 0.0;
+  mat.ior                 = 1.52;
+  mat.specularIntensity   = 0.35;
+  mat.envMapIntensity     = 0.10;
 
   const glasTyp      = glass?.glasTyp      ?? 'klarglas';
   const catalogColor = glass?.color        ?? null;
   const catalogTrans = glass?.transmission ?? null;
-  const catalogRough = glass?.roughness    ?? null;
 
   switch (glasTyp) {
 
-    // ── Satinato + Spiegelglas ─────────────────────────────────
+    // ── Satinato ───────────────────────────────────────────────
     case 'satinato': {
       const isMirror = catalogTrans !== null && catalogTrans < 0.50;
-
       if (isMirror) {
-        // Spiegelglas: high reflection, low transmission
-        mat.color.set(catalogColor ?? '#c8d8e8');
-        mat.transmission        = 0.25;
-        mat.roughness           = 0.03;
-        mat.metalness           = 0.08;
-        mat.ior                 = 1.55;
-        mat.thickness           = t * 5;
-        mat.attenuationDistance = 0.35;
-        mat.attenuationColor.set('#8899aa');
-        mat.envMapIntensity     = 0.55;   // Spiegelglas: etwas Reflexion ok
-        mat.specularIntensity   = 0.6;
-        mat.opacity             = op;
+        mat.color.set(catalogColor ?? '#b8ccd8');
+        mat.roughness         = 0.02;
+        mat.metalness         = 0.15;
+        mat.envMapIntensity   = 0.65;
+        mat.specularIntensity = 0.75;
+        mat.opacity           = 0.92 * op;  // fast opak = Spiegel
       } else {
-        // Satinato: frosted
-        mat.color.set('#eef0f6');
-        mat.transmission        = 0.80;
-        mat.roughness           = 0.66;
-        mat.metalness           = 0.0;
-        mat.ior                 = 1.38;
-        mat.thickness           = t * 9;
-        mat.attenuationDistance = 0.90;
-        mat.attenuationColor.set('#e2e6f0');
-        mat.envMapIntensity     = 0.04;
-        mat.roughnessMap        = getSatinatoMap();
-        mat.opacity             = 0.92 * op;
+        mat.color.set('#dde2ee');
+        mat.roughness         = 0.58;
+        mat.roughnessMap      = getSatinatoMap();
+        mat.envMapIntensity   = 0.04;
+        mat.specularIntensity = 0.1;
+        mat.opacity           = 0.68 * op;  // sichtbar milchig, aber noch durchscheinend
       }
       break;
     }
 
     // ── Parsol Bronze / Braunglas ──────────────────────────────
     case 'parsol_bronze': {
-      mat.color.set(catalogColor ?? '#c49870');
-      mat.transmission        = catalogTrans ?? 0.82;
-      mat.roughness           = catalogRough ?? 0.04;
-      mat.metalness           = 0.0;
-      mat.ior                 = 1.38;
-      mat.thickness           = t * 12;
-      mat.attenuationDistance = 0.50;
-      mat.attenuationColor.set('#7a4818');
-      mat.envMapIntensity     = 0.06;
-      mat.opacity             = op;
+      mat.color.set(catalogColor ?? '#b8905c');
+      mat.roughness         = 0.02;
+      mat.envMapIntensity   = 0.12;
+      mat.specularIntensity = 0.3;
+      // Transparenz: Bronze ~45 % sichtbar (dunkler als Klarglas, heller als Graphit)
+      mat.opacity           = 0.46 * op;
       break;
     }
 
     // ── Parsol Grau / Grauglas / Graphitglas ──────────────────
     case 'parsol_grau': {
-      const trans = catalogTrans ?? 0.78;
+      const trans     = catalogTrans ?? 0.78;
       const isGraphit = trans < 0.65;
-
-      mat.color.set(catalogColor ?? (isGraphit ? '#505860' : '#909aa4'));
-      mat.transmission        = trans;
-      mat.roughness           = 0.03;
-      mat.metalness           = 0.0;
-      mat.ior                 = 1.38;
-      mat.thickness           = t * (isGraphit ? 16 : 12);
-      mat.attenuationDistance = isGraphit ? 0.28 : 0.44;
-      mat.attenuationColor.set(isGraphit ? '#181e24' : '#303840');
-      mat.envMapIntensity     = 0.06;
-      mat.opacity             = op;
+      mat.color.set(catalogColor ?? (isGraphit ? '#525a62' : '#8090a0'));
+      mat.roughness         = 0.02;
+      mat.envMapIntensity   = 0.12;
+      mat.specularIntensity = 0.3;
+      mat.opacity           = (isGraphit ? 0.60 : 0.44) * op;
       break;
     }
 
     // ── Klarglas / UltraClear (default) ───────────────────────
-    // transmission=0 → kein doppelter Render-Pass → kein Doppelbild beim Drehen
     default: {
       const isUltraClear = (catalogTrans ?? 0.97) > 0.96;
-
-      // Leichte Blau-Grün-Tönung wie echtes Glas
       mat.color.set(catalogColor ?? (isUltraClear ? '#cdeef8' : '#c8e8f5'));
-      mat.transmission        = 0;       // PBR-Transmission aus → kein Ghost
-      mat.opacity             = isUltraClear ? 0.18 * op : 0.22 * op;
-      mat.roughness           = 0.0;
-      mat.metalness           = 0.0;
-      mat.ior                 = 1.52;    // Fresnel-Kanten bleiben realistisch
-      mat.thickness           = 0;
-      mat.attenuationDistance = 10.0;
-      mat.attenuationColor.set('#ffffff');
-      mat.envMapIntensity     = 0.10;
-      mat.specularIntensity   = 0.4;
+      mat.roughness         = 0.0;
+      mat.envMapIntensity   = 0.10;
+      mat.specularIntensity = 0.4;
+      mat.opacity           = (isUltraClear ? 0.18 : 0.22) * op;
     }
   }
 

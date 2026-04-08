@@ -633,8 +633,10 @@
 /* ── Viewer Hint ─────────────────────────── */
 .viewer-hint {
   position: absolute; bottom: 68px; left: 50%; transform: translateX(-50%);
-  font-size: 11px; color: rgba(31,46,74,0.4); letter-spacing: 0.05em;
+  font-size: 11px; color: rgba(200,215,235,0.70); letter-spacing: 0.06em;
   pointer-events: none; transition: opacity 0.5s;
+  z-index: 6; white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
 
 /* ── Maßangaben Overlay ──────────────────── */

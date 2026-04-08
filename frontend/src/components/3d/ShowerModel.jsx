@@ -424,66 +424,70 @@ function Falttuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
   );
 }
 
-// ── Duscharmatur: Stange + Handbrause + Thermostat ───────────
-function ShowerFixture({ w, h, metalMat }) {
-  const x  = -w / 2 + 0.023;   // innere linke Wand + 23 mm
-  const bz = -(D * 0.38);       // 38 % Tiefe
-  const tY = -h / 2 + 1.00;    // Thermostat 100 cm ab Boden
-  const barCY = -h / 2 + 0.68; // Stangenmitte
+// ── Duscharmatur: Rückwand, schwarz, unter Regendusche ───────
+// Alle Meshes mit inline-Material → kein primitive-Sharing-Problem
+function ShowerFixture({ h }) {
+  // An Rückwand (innere Fläche z = -D), mittig (x=0), direkt unter Regendusche
+  const z      = -D + 0.024;      // 24 mm vor Rückwand
+  const tY     = -h / 2 + 1.00;  // Thermostat 100 cm ab Boden
+  const barCY  = -h / 2 + 0.62;  // Stangen-Mitte
+
+  const C = '#0f0f0f';  // mattschwarz
+  const M = { color: C, metalness: 0.82, roughness: 0.20, envMapIntensity: 0.6 };
 
   return (
     <group>
       {/* ── Thermostatarmatur ── */}
-      <mesh position={[x, tY, bz]}>
-        <boxGeometry args={[0.040, 0.060, 0.140]} />
-        <primitive object={metalMat} attach="material" />
+      <mesh position={[0, tY, z]}>
+        <boxGeometry args={[0.140, 0.062, 0.040]} />
+        <meshStandardMaterial {...M} />
       </mesh>
-      {/* Knopf Temperatur (links, größer) */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[x + 0.032, tY + 0.010, bz - 0.040]}>
+      {/* Knopf Temperatur (links) */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[-0.040, tY + 0.010, z + 0.032]}>
         <cylinderGeometry args={[0.020, 0.020, 0.024, 16]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
-      {/* Knopf Menge (rechts, kleiner) */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[x + 0.032, tY + 0.010, bz + 0.040]}>
+      {/* Knopf Menge (rechts) */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0.040, tY + 0.010, z + 0.032]}>
         <cylinderGeometry args={[0.015, 0.015, 0.024, 16]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
-      {/* Auslaufstutzen */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[x + 0.036, tY - 0.018, bz]}>
-        <cylinderGeometry args={[0.009, 0.009, 0.016, 10]} />
-        <primitive object={metalMat} attach="material" />
+      {/* Auslaufstutzen unten */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, tY - 0.018, z + 0.030]}>
+        <cylinderGeometry args={[0.009, 0.009, 0.018, 10]} />
+        <meshStandardMaterial {...M} />
       </mesh>
 
       {/* ── Wandstange ── */}
-      <mesh position={[x, barCY, bz]}>
-        <cylinderGeometry args={[0.010, 0.010, 0.60, 10]} />
-        <primitive object={metalMat} attach="material" />
+      <mesh position={[0, barCY, z]}>
+        <cylinderGeometry args={[0.010, 0.010, 0.58, 10]} />
+        <meshStandardMaterial {...M} />
       </mesh>
       {/* Halterung oben */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[x - 0.004, barCY + 0.28, bz]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, barCY + 0.26, z - 0.004]}>
         <cylinderGeometry args={[0.016, 0.016, 0.020, 10]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
       {/* Halterung unten */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[x - 0.004, barCY - 0.28, bz]}>
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, barCY - 0.26, z - 0.004]}>
         <cylinderGeometry args={[0.016, 0.016, 0.020, 10]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
 
       {/* ── Handbrausen-Schlitten ── */}
-      <mesh position={[x + 0.004, barCY + 0.10, bz]}>
+      <mesh position={[0, barCY + 0.08, z + 0.004]}>
         <boxGeometry args={[0.034, 0.044, 0.034]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
-      {/* Anschlussrohr Schlitten → Kopf */}
-      <mesh rotation={[0.35, 0, 0]} position={[x + 0.038, barCY + 0.06, bz + 0.042]}>
-        <cylinderGeometry args={[0.007, 0.007, 0.072, 8]} />
-        <primitive object={metalMat} attach="material" />
+      {/* Anschlussrohr → Handbrause (schräg nach vorne) */}
+      <mesh rotation={[0.40, 0, 0]} position={[0, barCY + 0.04, z + 0.050]}>
+        <cylinderGeometry args={[0.007, 0.007, 0.075, 8]} />
+        <meshStandardMaterial {...M} />
       </mesh>
       {/* Handbrause-Kopf */}
-      <mesh rotation={[Math.PI / 2 - 0.35, 0, 0]} position={[x + 0.044, barCY + 0.03, bz + 0.076]}>
+      <mesh rotation={[Math.PI / 2 - 0.40, 0, 0]} position={[0, barCY + 0.01, z + 0.088]}>
         <cylinderGeometry args={[0.030, 0.026, 0.018, 14]} />
-        <primitive object={metalMat} attach="material" />
+        <meshStandardMaterial {...M} />
       </mesh>
     </group>
   );
@@ -598,7 +602,7 @@ export default function ShowerModel({ config, canvasRef }) {
   return (
     <group ref={groupRef} position={[0, -h / 2, 0]}>
       <ShowerEnclosure w={w} h={h} />
-      <ShowerFixture w={w} h={h} metalMat={metalMat.current} />
+      <ShowerFixture h={h} />
       <TypeComponent
         w={w} h={h} t={t}
         glassMat={glassMat.current}
