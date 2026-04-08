@@ -137,7 +137,7 @@ export default function Header() {
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `text-sm transition-colors duration-200 ${
+                  `nav-link text-sm transition-colors duration-200 ${
                     isActive
                       ? 'text-primary font-medium'
                       : 'text-gray-400 hover:text-primary font-normal'
@@ -188,7 +188,7 @@ export default function Header() {
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `px-3 py-3 text-sm transition-colors duration-200 min-h-[44px] flex items-center rounded-lg ${
+                  `nav-link px-3 py-3 text-sm transition-colors duration-200 min-h-[44px] flex items-center rounded-lg ${
                     isActive
                       ? 'text-primary font-medium bg-gray-50'
                       : 'text-gray-500 hover:text-primary hover:bg-gray-50'
