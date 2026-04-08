@@ -60,7 +60,7 @@ export default function Footer() {
                 <li key={to}>
                   <Link
                     to={to}
-                    className="text-white/40 hover:text-white/80 transition-colors duration-200 font-light"
+                    className="text-white/40 hover:text-red-500 transition-colors duration-200 font-light"
                   >
                     {label}
                   </Link>
@@ -75,12 +75,12 @@ export default function Footer() {
             <address className="not-italic text-sm text-white/40 space-y-2.5 font-light">
               <p>Prüfeninger Straße 73, 93049 Regensburg</p>
               <p>
-                <a href="tel:+491234567890" className="hover:text-white/70 transition-colors duration-200">
+                <a href="tel:+491234567890" className="hover:text-red-500 transition-colors duration-200">
                   +49 (0) 123 456789
                 </a>
               </p>
               <p>
-                <a href="mailto:info@duschwerk-bayern.de" className="hover:text-white/70 transition-colors duration-200">
+                <a href="mailto:info@duschwerk-bayern.de" className="hover:text-red-500 transition-colors duration-200">
                   info@duschwerk-bayern.de
                 </a>
               </p>
@@ -96,9 +96,9 @@ export default function Footer() {
         >
           <span>© {year} Duschwerk Bayern · Regensburg</span>
           <div className="flex gap-5">
-            <Link to="/impressum" className="hover:text-white/40 transition-colors duration-200">Impressum</Link>
-            <Link to="/datenschutz" className="hover:text-white/40 transition-colors duration-200">Datenschutz</Link>
-            <Link to="/agb" className="hover:text-white/40 transition-colors duration-200">AGB</Link>
+            <Link to="/impressum" className="transition-colors duration-200 hover:text-red-500">Impressum</Link>
+            <Link to="/datenschutz" className="transition-colors duration-200 hover:text-red-500">Datenschutz</Link>
+            <Link to="/agb" className="transition-colors duration-200 hover:text-red-500">AGB</Link>
           </div>
         </div>
       </div>
