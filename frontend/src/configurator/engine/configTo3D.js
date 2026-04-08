@@ -27,6 +27,7 @@ export function configTo3D(wizardConfig) {
 
   return {
     typ,
+    einbausituation: wizardConfig.einbausituation || 'nische',
     glass:     glas?.render    || DEFAULT_GLASS,
     metal:     profil?.render  || DEFAULT_METAL,
     staerke:   staerke?.id     || '8mm',
@@ -39,7 +40,7 @@ export function configTo3D(wizardConfig) {
 function mapToTyp({ einbausituation, tuersystem }) {
   if (einbausituation === 'walkin')    return 'Walk-in';
   if (einbausituation === 'glaswand')  return 'Walk-in';
-  if (einbausituation === 'badewanne') return 'Schiebetür';
+  if (einbausituation === 'badewanne') return 'Badewanne';
   return mapTuersystem(tuersystem);
 }
 

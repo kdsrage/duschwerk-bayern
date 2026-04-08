@@ -13,6 +13,7 @@ export function mapConfig(config) {
   const glass = (config.glass && typeof config.glass === 'object') ? config.glass : FALLBACK_GLASS;
   const metal = (config.metal && typeof config.metal === 'object') ? config.metal : FALLBACK_METAL;
 
-  const typ = config.typ ?? 'Walk-in';
-  return { w, h, t, glass, metal, typ };
+  const typ             = config.typ ?? 'Walk-in';
+  const einbausituation = config.einbausituation ?? 'nische';
+  return { w, h, t, glass, metal, typ, einbausituation };
 }
