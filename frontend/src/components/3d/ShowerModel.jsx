@@ -7,216 +7,280 @@ import { useModelAnimation } from './configurator/useModelAnimation';
 import { useGlassMaterial, updateGlassMaterial } from './materials/GlassMaterial';
 import { useMetalMaterial, updateMetalMaterial } from './materials/MetalMaterial';
 
-// Profil-Dimensionen (realistisch für Duschkabine)
-const P  = 0.025;  // Profil-Breite (25mm)
-const PH = 0.018;  // Profil-Tiefe (18mm)
+// ── Dimensionen ─────────────────────────────────────────────
+const P   = 0.022;   // Profilbreite
+const PH  = 0.016;   // Profiltiefe
+const D   = 0.90;    // Duschwannen-Tiefe (front→back)
+const WT  = 0.12;    // Wandstärke
+const TH  = 0.055;   // Bodenhohe (Duschwanne)
 
-// ── Walk-In ────────────────────────────────────────────────
+// ── Statische Materialien ────────────────────────────────────
+let _wallMat = null;
+function wallMat() {
+  if (_wallMat) return _wallMat;
+  _wallMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#b0ada6'),
+    roughness: 0.80,
+    metalness: 0.01,
+    envMapIntensity: 0.10,
+  });
+  return _wallMat;
+}
+
+let _trayMat = null;
+function trayMat() {
+  if (_trayMat) return _trayMat;
+  _trayMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#dedad3'),
+    roughness: 0.38,
+    metalness: 0.02,
+    envMapIntensity: 0.20,
+  });
+  return _trayMat;
+}
+
+// ── Duschnische (Wände + Boden) ──────────────────────────────
+// Koordinaten: Glas vorne bei z=0, Wände gehen nach z=-(D+WT)
+// Y-Ursprung ist Mitte des Glases (Gruppe sitzt bei y=-h/2)
+function ShowerEnclosure({ w, h }) {
+  // Wand-Zentren
+  const backZ   = -(D + WT / 2);         // Rückwand-Mitte
+  const sideZ   = -(D / 2);              // Seitenwand-Mitte Z
+  const leftX   = -w / 2 - WT / 2;
+  const rightX  =  w / 2 + WT / 2;
+
+  return (
+    <group>
+      {/* Rückwand */}
+      <mesh position={[0, 0, backZ]}>
+        <boxGeometry args={[w + WT * 2, h, WT]} />
+        <primitive object={wallMat()} attach="material" />
+      </mesh>
+
+      {/* Linke Wand */}
+      <mesh position={[leftX, 0, sideZ]}>
+        <boxGeometry args={[WT, h, D]} />
+        <primitive object={wallMat()} attach="material" />
+      </mesh>
+
+      {/* Rechte Wand */}
+      <mesh position={[rightX, 0, sideZ]}>
+        <boxGeometry args={[WT, h, D]} />
+        <primitive object={wallMat()} attach="material" />
+      </mesh>
+
+      {/* Duschwanne (Boden) */}
+      <mesh position={[0, -h / 2 - TH / 2, -(D / 2)]}>
+        <boxGeometry args={[w + WT * 2 + 0.02, TH, D + WT + 0.02]} />
+        <primitive object={trayMat()} attach="material" />
+      </mesh>
+
+      {/* Drainstreifen */}
+      <mesh position={[0, -h / 2 + 0.002, -D * 0.12]}>
+        <boxGeometry args={[w * 0.72, 0.004, 0.055]} />
+        <meshStandardMaterial color="#a8a8a8" metalness={0.90} roughness={0.12} />
+      </mesh>
+    </group>
+  );
+}
+
+// ── Glasfront: Walk-In ───────────────────────────────────────
 function WalkIn({ w, h, t, glassMat, metalMat, rahmentyp }) {
   const rahmenlos = rahmentyp === 'rahmenlos' || !rahmentyp;
 
   return (
     <group>
-      {/* Haupt-Glasscheibe */}
-      <mesh castShadow receiveShadow>
+      {/* Glasscheibe */}
+      <mesh>
         <boxGeometry args={[w, h, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
 
-      {/* Profile — nur wenn nicht rahmenlos */}
+      {/* Wandprofil links */}
       {!rahmenlos && (
-        <>
-          {/* Linkes Wandprofil */}
-          <mesh position={[-w / 2 - P / 2, 0, 0]}>
-            <boxGeometry args={[P, h + P, PH]} />
-            <primitive object={metalMat} attach="material" />
-          </mesh>
-          {/* Oberes Profil */}
-          <mesh position={[0, h / 2 + P / 2, 0]}>
-            <boxGeometry args={[w + P * 2, P, PH]} />
-            <primitive object={metalMat} attach="material" />
-          </mesh>
-          {/* Unteres Bodenprofil */}
-          <mesh position={[0, -h / 2 - P / 2, 0]}>
-            <boxGeometry args={[w + P * 2, P, PH]} />
-            <primitive object={metalMat} attach="material" />
-          </mesh>
-        </>
+        <mesh position={[-w / 2 - P / 2, 0, 0]}>
+          <boxGeometry args={[P, h + P, PH]} />
+          <primitive object={metalMat} attach="material" />
+        </mesh>
       )}
 
-      {/* Rückseitige Glasscheibe (Stellwand) */}
-      <mesh position={[w / 2 + 0.12, 0, -0.12]} rotation={[0, Math.PI / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.25, h, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
-
-      {/* Wandhalterung oben */}
-      <mesh position={[-w / 2 - 0.01, h / 2 - 0.08, 0]}>
-        <boxGeometry args={[0.02, 0.08, 0.06]} />
+      {/* Wandhalter oben */}
+      <mesh position={[-w / 2 - 0.008, h / 2 - 0.07, 0]}>
+        <boxGeometry args={[0.018, 0.07, 0.05]} />
         <primitive object={metalMat} attach="material" />
       </mesh>
-      {/* Wandhalterung unten */}
-      <mesh position={[-w / 2 - 0.01, -h / 2 + 0.08, 0]}>
-        <boxGeometry args={[0.02, 0.08, 0.06]} />
+      {/* Wandhalter unten */}
+      <mesh position={[-w / 2 - 0.008, -h / 2 + 0.07, 0]}>
+        <boxGeometry args={[0.018, 0.07, 0.05]} />
         <primitive object={metalMat} attach="material" />
       </mesh>
     </group>
   );
 }
 
-// ── Drehtür ────────────────────────────────────────────────
+// ── Glasfront: Drehtür ───────────────────────────────────────
 function Drehtuer({ w, h, t, glassMat, metalMat }) {
-  // Türblatt-Breite (80% der Gesamtbreite)
-  const doorW = w * 0.82;
+  const fixW  = w * 0.28;   // festes Seitenteil
+  const doorW = w - fixW - P * 2;
 
   return (
     <group>
-      {/* Seitenpanel (fest) */}
-      <mesh position={[-w / 2 + (w - doorW) / 2, 0, 0]} castShadow receiveShadow>
-        <boxGeometry args={[w - doorW - P, h, t]} />
+      {/* Festes Seitenteil (links) */}
+      <mesh position={[-w / 2 + fixW / 2, 0, 0]}>
+        <boxGeometry args={[fixW, h - P * 2, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
 
-      {/* Türblatt */}
-      <mesh position={[w / 2 - doorW / 2, 0, 0]} castShadow receiveShadow>
+      {/* Türblatt (rechts) */}
+      <mesh position={[w / 2 - doorW / 2, 0, 0]}>
         <boxGeometry args={[doorW, h - P * 2, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
 
-      {/* Rahmen */}
-      {/* Links */}
-      <mesh position={[-w / 2 + P / 2, 0, 0]}>
-        <boxGeometry args={[P, h, PH]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Rechts */}
-      <mesh position={[w / 2 - P / 2, 0, 0]}>
-        <boxGeometry args={[P, h, PH]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Oben */}
+      {/* Rahmen oben */}
       <mesh position={[0, h / 2 - P / 2, 0]}>
         <boxGeometry args={[w, P, PH]} />
         <primitive object={metalMat} attach="material" />
       </mesh>
-      {/* Unten */}
+      {/* Rahmen unten */}
+      <mesh position={[0, -h / 2 + P / 2, 0]}>
+        <boxGeometry args={[w, P, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Rahmen links */}
+      <mesh position={[-w / 2 + P / 2, 0, 0]}>
+        <boxGeometry args={[P, h, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Rahmen rechts */}
+      <mesh position={[w / 2 - P / 2, 0, 0]}>
+        <boxGeometry args={[P, h, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Mittelprofil (Türanschlag) */}
+      <mesh position={[-w / 2 + fixW + P / 2, 0, 0]}>
+        <boxGeometry args={[P, h, PH * 1.4]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+
+      {/* Scharnier oben */}
+      <mesh position={[-w / 2 + fixW + P, h / 2 - 0.12, t / 2 + 0.010]}>
+        <cylinderGeometry args={[0.012, 0.012, 0.06, 10]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Scharnier unten */}
+      <mesh position={[-w / 2 + fixW + P, -h / 2 + 0.12, t / 2 + 0.010]}>
+        <cylinderGeometry args={[0.012, 0.012, 0.06, 10]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+
+      {/* Griff */}
+      <mesh position={[w / 2 - 0.06, 0, t / 2 + 0.022]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.26, 10]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      <mesh position={[w / 2 - 0.06,  0.13, t / 2 + 0.022]}>
+        <sphereGeometry args={[0.010, 8, 8]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      <mesh position={[w / 2 - 0.06, -0.13, t / 2 + 0.022]}>
+        <sphereGeometry args={[0.010, 8, 8]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+    </group>
+  );
+}
+
+// ── Glasfront: Schiebetür ────────────────────────────────────
+function Schiebetuer({ w, h, t, glassMat, metalMat }) {
+  const panelW  = w * 0.58;
+  const overlap = panelW * 0.14;
+
+  return (
+    <group>
+      {/* Obere Schiene */}
+      <mesh position={[0, h / 2 + P / 2, 0]}>
+        <boxGeometry args={[w, P * 0.65, P * 2.2]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Untere Schiene */}
+      <mesh position={[0, -h / 2 - P / 2, 0]}>
+        <boxGeometry args={[w, P * 0.65, P * 2.2]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+
+      {/* Panel 1 (vorne) */}
+      <mesh position={[-(w / 2 - panelW / 2 - overlap), 0, t * 0.6]}>
+        <boxGeometry args={[panelW, h - P * 2, t]} />
+        <primitive object={glassMat} attach="material" />
+      </mesh>
+      {/* Panel 2 (hinten) */}
+      <mesh position={[(w / 2 - panelW / 2 - overlap), 0, -t * 0.6]}>
+        <boxGeometry args={[panelW, h - P * 2, t]} />
+        <primitive object={glassMat} attach="material" />
+      </mesh>
+
+      {/* Griff 1 */}
+      <mesh position={[-(w / 2 - panelW / 2 - overlap) + panelW * 0.28, 0, t * 0.6 + t / 2 + 0.018]}>
+        <cylinderGeometry args={[0.007, 0.007, 0.20, 10]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      {/* Griff 2 */}
+      <mesh position={[(w / 2 - panelW / 2 - overlap) - panelW * 0.28, 0, -t * 0.6 - t / 2 - 0.018]}>
+        <cylinderGeometry args={[0.007, 0.007, 0.20, 10]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+    </group>
+  );
+}
+
+// ── Glasfront: Falttür ───────────────────────────────────────
+function Falttuer({ w, h, t, glassMat, metalMat }) {
+  const segW = w / 3;
+
+  return (
+    <group>
+      {/* Rahmen */}
+      <mesh position={[-w / 2 + P / 2, 0, 0]}>
+        <boxGeometry args={[P, h, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      <mesh position={[w / 2 - P / 2, 0, 0]}>
+        <boxGeometry args={[P, h, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
+      <mesh position={[0, h / 2 - P / 2, 0]}>
+        <boxGeometry args={[w, P, PH]} />
+        <primitive object={metalMat} attach="material" />
+      </mesh>
       <mesh position={[0, -h / 2 + P / 2, 0]}>
         <boxGeometry args={[w, P, PH]} />
         <primitive object={metalMat} attach="material" />
       </mesh>
 
-      {/* Türanschlag-Profil (Mitte) */}
-      <mesh position={[-w / 2 + (w - doorW) + P / 2, 0, 0]}>
-        <boxGeometry args={[P, h, PH]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-
-      {/* Scharnier oben */}
-      <mesh position={[-w / 2 + (w - doorW) + P, h / 2 - 0.12, t / 2 + 0.012]}>
-        <cylinderGeometry args={[0.014, 0.014, 0.07, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Scharnier unten */}
-      <mesh position={[-w / 2 + (w - doorW) + P, -h / 2 + 0.12, t / 2 + 0.012]}>
-        <cylinderGeometry args={[0.014, 0.014, 0.07, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-
-      {/* Griff — vertikale Stange */}
-      <mesh position={[w / 2 - 0.07, 0, t / 2 + 0.025]} rotation={[0, 0, 0]}>
-        <cylinderGeometry args={[0.009, 0.009, 0.28, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Griff-Endkappe oben */}
-      <mesh position={[w / 2 - 0.07, 0.15, t / 2 + 0.025]}>
-        <sphereGeometry args={[0.011, 8, 8]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Griff-Endkappe unten */}
-      <mesh position={[w / 2 - 0.07, -0.15, t / 2 + 0.025]}>
-        <sphereGeometry args={[0.011, 8, 8]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-    </group>
-  );
-}
-
-// ── Schiebetür ─────────────────────────────────────────────
-function Schiebetuer({ w, h, t, glassMat, metalMat }) {
-  const panelW = w * 0.58;
-  const overlap = panelW * 0.15; // Überlappungsbereich
-
-  return (
-    <group>
-      {/* Obere Führungsschiene */}
-      <mesh position={[0, h / 2 + P / 2, 0]}>
-        <boxGeometry args={[w, P * 0.7, P * 2.5]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Untere Führungsschiene */}
-      <mesh position={[0, -h / 2 - P / 2, 0]}>
-        <boxGeometry args={[w, P * 0.7, P * 2.5]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-
-      {/* Panel 1 (linke Seite, vorn) */}
-      <mesh position={[-(w / 2 - panelW / 2 - overlap), 0, t * 0.7]} castShadow receiveShadow>
-        <boxGeometry args={[panelW, h - P * 2, t]} />
+      {/* Segment 1 */}
+      <mesh position={[-w / 2 + segW / 2 + P, 0, 0]}>
+        <boxGeometry args={[segW - P, h - P * 2, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
-      {/* Panel 2 (rechte Seite, hinten) */}
-      <mesh position={[(w / 2 - panelW / 2 - overlap), 0, -t * 0.7]} castShadow receiveShadow>
-        <boxGeometry args={[panelW, h - P * 2, t]} />
+      {/* Segment 2 */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[segW - P, h - P * 2, t]} />
+        <primitive object={glassMat} attach="material" />
+      </mesh>
+      {/* Segment 3 */}
+      <mesh position={[w / 2 - segW / 2 - P, 0, 0]}>
+        <boxGeometry args={[segW - P, h - P * 2, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
 
-      {/* Griff Panel 1 */}
-      <mesh position={[-(w / 2 - panelW / 2 - overlap) + panelW * 0.3, 0, t * 0.7 + t / 2 + 0.02]}>
-        <cylinderGeometry args={[0.008, 0.008, 0.22, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Griff Panel 2 */}
-      <mesh position={[(w / 2 - panelW / 2 - overlap) - panelW * 0.3, 0, -t * 0.7 - t / 2 - 0.02]}>
-        <cylinderGeometry args={[0.008, 0.008, 0.22, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-    </group>
-  );
-}
-
-// ── Nische ─────────────────────────────────────────────────
-function Nische({ w, h, t, glassMat, metalMat }) {
-  const frontW = w * 0.65;
-  const sideD  = 0.28;
-
-  return (
-    <group>
-      {/* Frontscheibe */}
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[frontW, h, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
-      {/* Linke Seitenscheibe */}
-      <mesh position={[-frontW / 2 - sideD / 2, 0, -sideD / 2]} rotation={[0, Math.PI / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[sideD, h, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
-      {/* Rechte Seitenscheibe */}
-      <mesh position={[frontW / 2 + sideD / 2, 0, -sideD / 2]} rotation={[0, Math.PI / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[sideD, h, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
-
-      {/* Profile oben */}
-      <mesh position={[0, h / 2 + P / 2, -sideD / 4]}>
-        <boxGeometry args={[frontW + sideD * 2, P, PH]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {/* Profile unten */}
-      <mesh position={[0, -h / 2 - P / 2, -sideD / 4]}>
-        <boxGeometry args={[frontW + sideD * 2, P, PH]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
+      {/* Faltgelenke */}
+      {[-w / 2 + segW + P, -P / 2, w / 2 - segW - P].map((x, i) => (
+        <mesh key={i} position={[x, 0, t / 2 + 0.008]}>
+          <cylinderGeometry args={[0.009, 0.009, h * 0.4, 8]} />
+          <primitive object={metalMat} attach="material" />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -225,19 +289,20 @@ const TYPE_COMPONENTS = {
   'Walk-in':    WalkIn,
   'Drehtür':    Drehtuer,
   'Schiebetür': Schiebetuer,
-  'Nische':     Nische,
+  'Nische':     Schiebetuer,  // Nische = Schiebetür in der Nische
+  'Falttür':    Falttuer,
 };
 
 export default function ShowerModel({ config, canvasRef }) {
-  const groupRef    = useRef();
-  const prevConfig  = useRef(null);
-  const prevBreite  = useRef(config?.breite ?? 90);
-  const prevHoehe   = useRef(config?.hoehe  ?? 200);
+  const groupRef   = useRef();
+  const prevConfig = useRef(null);
+  const prevBreite = useRef(config?.breite ?? 90);
+  const prevHoehe  = useRef(config?.hoehe  ?? 200);
 
-  const isDragging  = useRef(false);
-  const dragStart   = useRef({ x: 0, y: 0 });
-  const rotStart    = useRef({ x: 0, y: 0 });
-  const currentRot  = useRef({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart  = useRef({ x: 0, y: 0 });
+  const rotStart   = useRef({ x: 0, y: 0 });
+  const currentRot = useRef({ x: 0.08, y: -0.30 });  // leichte Startdrehung für 3/4-Ansicht
 
   const glassMat = useGlassMaterial();
   const metalMat = useMetalMaterial();
@@ -247,7 +312,6 @@ export default function ShowerModel({ config, canvasRef }) {
   const mapped = useMemo(() => mapConfig(config ?? {}), [config]);
   const { w, h, t, glass, metal, typ } = mapped;
 
-  // Transitions bei Konfigurationsänderungen
   useEffect(() => {
     if (!prevConfig.current) { prevConfig.current = config; return; }
     const prev = prevConfig.current;
@@ -286,7 +350,7 @@ export default function ShowerModel({ config, canvasRef }) {
       const dx = e.clientX - dragStart.current.x;
       const dy = e.clientY - dragStart.current.y;
       currentRot.current.y = rotStart.current.y + dx * 0.007;
-      currentRot.current.x = Math.max(-0.22, Math.min(0.22, rotStart.current.x + dy * 0.007));
+      currentRot.current.x = Math.max(-0.28, Math.min(0.28, rotStart.current.x + dy * 0.007));
     };
     const onUp = () => { isDragging.current = false; };
 
@@ -302,7 +366,6 @@ export default function ShowerModel({ config, canvasRef }) {
     };
   }, [canvasRef]);
 
-  // Cleanup
   useEffect(() => () => {
     glassMat.current.dispose();
     metalMat.current.dispose();
@@ -318,7 +381,6 @@ export default function ShowerModel({ config, canvasRef }) {
       groupRef.current.rotation.x += (currentRot.current.x - groupRef.current.rotation.x) * 0.07;
     }
 
-    // Materialien updaten (Zoom liegt jetzt im ZoomController)
     updateGlassMaterial(glassMat.current, glass, t, animOpacity.current);
     updateMetalMaterial(metalMat.current, metal);
   });
@@ -328,6 +390,10 @@ export default function ShowerModel({ config, canvasRef }) {
 
   return (
     <group ref={groupRef} position={[0, -h / 2, 0]}>
+      {/* Wände + Boden */}
+      <ShowerEnclosure w={w} h={h} />
+
+      {/* Glasfront */}
       <TypeComponent
         w={w} h={h} t={t}
         glassMat={glassMat.current}

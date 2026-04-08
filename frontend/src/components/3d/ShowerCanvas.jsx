@@ -26,12 +26,13 @@ function CameraSetup({ h, zoomRef }) {
     if (prevH.current === h) return;
     prevH.current = h;
 
-    const dist     = Math.max(3.6, h * 1.80 + 0.9);
-    const centerY  = -h / 2 + h * 0.06;
+    const dist     = Math.max(3.8, h * 1.85 + 1.0);
+    const centerY  = -h / 2 + h * 0.08;
 
     zoomRef.current = dist;
-    camera.position.set(0.4, centerY + h * 0.14, dist);
-    camera.lookAt(0, centerY, 0);
+    // Leicht von links-vorne für 3/4-Ansicht der Nische
+    camera.position.set(-dist * 0.18, centerY + h * 0.12, dist * 0.97);
+    camera.lookAt(-0.05, centerY, -0.35);
     camera.updateProjectionMatrix();
   }, [h, camera]);
 
@@ -51,8 +52,8 @@ function ZoomController({ h, zoomRef }) {
     const centerY = -h / 2 + h * 0.08;
     const target  = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomRef.current));
 
-    // Richtungsvektor: Kamera → Zoom-Center
-    _zc.x = 0; _zc.y = centerY; _zc.z = 0;
+    // Richtungsvektor: Kamera → Zoom-Center (leicht in Nische versetzt)
+    _zc.x = -0.05; _zc.y = centerY; _zc.z = -0.35;
 
     const dx = camera.position.x - _zc.x;
     const dy = camera.position.y - _zc.y;
