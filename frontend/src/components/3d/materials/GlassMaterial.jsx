@@ -45,7 +45,7 @@ export function useGlassMaterial() {
       clearcoat:           0.0,
       transparent:         true,
       opacity:             1.0,
-      side:                THREE.DoubleSide,
+      side:                THREE.FrontSide,   // DoubleSide verursacht doppelte Spiegelungen beim Drehen
       depthWrite:          false,
     })
   );

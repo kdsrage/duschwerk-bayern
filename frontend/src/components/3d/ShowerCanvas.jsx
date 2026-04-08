@@ -130,11 +130,11 @@ export default function ShowerCanvas({ config, isComplete }) {
           <directionalLight
             position={[-1.5, 6, 3.5]} intensity={0.85} color="#fffcf8"
             castShadow
-            shadow-mapSize-width={2048} shadow-mapSize-height={2048}
-            shadow-camera-near={0.5} shadow-camera-far={20}
+            shadow-mapSize-width={1024} shadow-mapSize-height={1024}
+            shadow-camera-near={0.5} shadow-camera-far={18}
             shadow-camera-left={-3} shadow-camera-right={3}
             shadow-camera-top={4}   shadow-camera-bottom={-4}
-            shadow-bias={-0.0003}   shadow-normalBias={0.02}
+            shadow-bias={-0.0004}   shadow-normalBias={0.025}
           />
           {/* Fülllicht rechts (kühler, Fensterseite) */}
           <directionalLight position={[4, 2, 2.5]} intensity={0.28} color="#dde8ff" />

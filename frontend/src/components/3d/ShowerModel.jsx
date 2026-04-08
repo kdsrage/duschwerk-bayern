@@ -439,8 +439,8 @@ export default function ShowerModel({ config, canvasRef }) {
     if (groupRef.current) {
       const s = animScale.current;
       groupRef.current.scale.set(s, s, s);
-      groupRef.current.rotation.y += (currentRot.current.y - groupRef.current.rotation.y) * 0.07;
-      groupRef.current.rotation.x += (currentRot.current.x - groupRef.current.rotation.x) * 0.07;
+      groupRef.current.rotation.y += (currentRot.current.y - groupRef.current.rotation.y) * 0.18;
+      groupRef.current.rotation.x += (currentRot.current.x - groupRef.current.rotation.x) * 0.18;
     }
     updateGlassMaterial(glassMat.current, glass, t, animOpacity.current);
     updateMetalMaterial(metalMat.current, metal);
