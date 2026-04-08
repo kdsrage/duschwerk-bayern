@@ -816,7 +816,7 @@
   box-shadow: 0 2px 8px rgba(31,46,74,0.25);
 }
 .wizard-next-btn:hover:not(:disabled) { background: #162340; box-shadow: 0 4px 16px rgba(31,46,74,0.35); transform: translateY(-1px); }
-.wizard-next-btn:active:not(:disabled) { transform: translateY(0); }
+.wizard-next-btn:active:not(:disabled) { transform: translateY(0); background: #C62828; box-shadow: 0 4px 16px rgba(198,40,40,0.4); }
 .wizard-next-btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; transform: none; box-shadow: none; }
 .wizard-nav-right { display: flex; align-items: center; gap: 12px; }
 
