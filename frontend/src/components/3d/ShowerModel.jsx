@@ -268,13 +268,11 @@ function WalkIn({ w, h, t, glassMat, metalMat, rahmentyp }) {
             <boxGeometry args={[w, pw, phe]} />
             <primitive object={metalMat} attach="material" />
           </mesh>
-          {/* Rechtes Seitenprofil – nur vollgerahmt */}
-          {voll && (
-            <mesh position={[w / 2 - pw / 2, 0, 0]}>
-              <boxGeometry args={[pw, h, phe]} />
-              <primitive object={metalMat} attach="material" />
-            </mesh>
-          )}
+          {/* Rechtes Seitenprofil */}
+          <mesh position={[w / 2 - pw / 2, 0, 0]}>
+            <boxGeometry args={[pw, h, phe]} />
+            <primitive object={metalMat} attach="material" />
+          </mesh>
           {/* Unteres Querprofil – nur vollgerahmt */}
           {voll && (
             <mesh position={[0, -h / 2 + pw / 2, 0]}>
