@@ -1,5 +1,12 @@
 import React from 'react';
 
+// Unsplash-Fotos passend zum jeweiligen Rahmentyp
+const BAUART_PHOTOS = {
+  vollgerahmt: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=600&q=80',
+  teilgerahmt: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80',
+  rahmenlos:   'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=600&q=80',
+};
+
 function BauartIcon({ typ, active }) {
   const wall  = active ? '#8892A4' : '#C0C8D4';
   const frame = active ? '#1F2E4A' : '#8892A4';
@@ -71,27 +78,41 @@ export default function StepBauart({ config, setField, options }) {
         <p>Wie soll die Duschabtrennung gerahmt sein?</p>
       </div>
 
-      <div className="choice-grid choice-grid--3col">
+      <div className="bauart-photo-grid">
         {options.rahmentypen.map(r => {
           const active = config.rahmentyp === r.id;
+          const photo = BAUART_PHOTOS[r.id];
           return (
             <button
               key={r.id}
-              className={`choice-card choice-card--bauart${active ? ' active' : ''}`}
+              className={`bauart-photo-card${active ? ' active' : ''}`}
               onClick={() => setField('rahmentyp', r.id)}
             >
-              <div className="choice-bauart-icon">
-                <BauartIcon typ={r.id} active={active} />
-              </div>
-              <div className="choice-bauart-name">{r.name}</div>
-              <div className="choice-bauart-desc">{r.description}</div>
-              {active && (
-                <div className="choice-check">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+              {/* Foto-Bereich */}
+              <div className="bauart-photo-img-wrap">
+                <img
+                  src={photo}
+                  alt={r.name}
+                  className="bauart-photo-img"
+                  loading="lazy"
+                />
+                {/* SVG-Schema-Overlay rechts unten */}
+                <div className="bauart-photo-schema">
+                  <BauartIcon typ={r.id} active={true} />
                 </div>
-              )}
+                {active && (
+                  <div className="bauart-photo-check">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
+              </div>
+              {/* Text-Bereich */}
+              <div className="bauart-photo-info">
+                <div className="bauart-photo-name">{r.name}</div>
+                <div className="bauart-photo-desc">{r.description}</div>
+              </div>
             </button>
           );
         })}
