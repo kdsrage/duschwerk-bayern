@@ -10,23 +10,23 @@ export default function BathroomScene({ showerWidth = 1.2, showerHeight = 2.0 })
 
   return (
     <group>
-      {/* Polierter Reflexionsboden — dunkler Naturstein */}
+      {/* Polierter heller Marmorboden — weißer Stein mit feinen Reflexionen */}
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, floorY, -1.0]}>
         <planeGeometry args={[20, 14]} />
         <meshStandardMaterial
-          color="#0a0c10"
-          roughness={0.08}
-          metalness={0.12}
-          envMapIntensity={0.55}
+          color="#e8e6e2"
+          roughness={0.14}
+          metalness={0.04}
+          envMapIntensity={0.45}
         />
       </mesh>
 
-      {/* Weit entfernte Rückwand — sehr dunkel, nur als Tiefenhinweis */}
+      {/* Helle Rückwand — neutrales Weiß für saubere Produktdarstellung */}
       <mesh position={[0, floorY + (h + 3) / 2, -4.5]}>
         <planeGeometry args={[16, h + 6]} />
         <meshStandardMaterial
-          color="#080a0d"
-          roughness={0.95}
+          color="#f0f1f4"
+          roughness={0.92}
           metalness={0.0}
           side={THREE.FrontSide}
         />

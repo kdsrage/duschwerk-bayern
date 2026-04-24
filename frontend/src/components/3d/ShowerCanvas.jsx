@@ -18,10 +18,10 @@ function BackgroundGradient() {
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0.00, '#f5f6f8');   // oben: helles Grau
-    g.addColorStop(0.45, '#eceef2');   // mitte: leicht wärmer
-    g.addColorStop(0.80, '#e4e6ea');   // mitte-unten: dezent
-    g.addColorStop(1.00, '#dcdee3');   // unten: Bodenton
+    g.addColorStop(0.00, '#ffffff');   // oben: reines Weiß
+    g.addColorStop(0.40, '#f8f9fb');   // mitte: kaum erkennbares Grau
+    g.addColorStop(0.80, '#f2f3f6');   // mitte-unten
+    g.addColorStop(1.00, '#ebebef');   // unten: Bodenton
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
@@ -136,15 +136,15 @@ export default function ShowerCanvas({ config, isComplete }) {
             antialias:           true,
             alpha:               false,
             toneMapping:         4,
-            toneMappingExposure: 1.30,
+            toneMappingExposure: 1.20,
             outputColorSpace:    'srgb',
             powerPreference:     'high-performance',
           }}
           shadows="soft"
           frameloop="always"
-          camera={{ fov: 38, position: [0, 0, 4.5], near: 0.05, far: 80 }}
+          camera={{ fov: 34, position: [0, 0, 4.5], near: 0.05, far: 80 }}
           dpr={[1, 2]}
-          style={{ background: '#f0f1f4' }}
+          style={{ background: '#ffffff' }}
           onPointerDown={() => setIsDragging(true)}
           onPointerUp={() => setIsDragging(false)}
           onPointerLeave={() => setIsDragging(false)}
@@ -156,26 +156,28 @@ export default function ShowerCanvas({ config, isComplete }) {
           <ZoomController h={mapped.h} zoomRef={zoomRef} />
 
           {/* ── Beleuchtung ─────────────────────────────────── */}
-          {/* Hauptlicht: schräg von oben-links (Tageslicht-Fenster) */}
+          {/* Key-Light: Softbox von oben-links — klare, gerichtete Schatten */}
           <directionalLight
-            position={[-2.0, 5, 4.0]} intensity={1.10} color="#fff8f0"
+            position={[-2.5, 6, 3.5]} intensity={1.40} color="#ffffff"
             castShadow
-            shadow-mapSize-width={1024} shadow-mapSize-height={1024}
-            shadow-camera-near={0.5} shadow-camera-far={18}
+            shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+            shadow-camera-near={0.5} shadow-camera-far={20}
             shadow-camera-left={-3} shadow-camera-right={3}
-            shadow-camera-top={4}   shadow-camera-bottom={-4}
-            shadow-bias={-0.0004}   shadow-normalBias={0.025}
+            shadow-camera-top={5}   shadow-camera-bottom={-5}
+            shadow-bias={-0.0003}   shadow-normalBias={0.020}
           />
-          {/* Fülllicht rechts (helles Tageslicht) */}
-          <directionalLight position={[4, 3, 2.5]} intensity={0.55} color="#f0f6ff" />
-          {/* Rücklicht für Chromkanten */}
-          <directionalLight position={[0.5, 2, -4]} intensity={0.30} color="#ffffff" />
-          {/* Ambientes Licht — hell, neutral */}
-          <ambientLight intensity={1.10} color="#ffffff" />
-          <hemisphereLight skyColor="#ffffff" groundColor="#d8d4cc" intensity={0.55} />
+          {/* Fill-Light rechts: kühles Fensterlicht, dezent */}
+          <directionalLight position={[5, 2, 2.0]} intensity={0.45} color="#e8f0ff" />
+          {/* Rim-Light hinten: scharfe Chromkanten-Highlights */}
+          <directionalLight position={[0, 2.5, -5]} intensity={0.55} color="#ffffff" />
+          {/* Top-Light: saubere Deckenaufhellung */}
+          <directionalLight position={[0, 8, 0]} intensity={0.30} color="#f8f8ff" />
+          {/* Ambientes Licht — niedrig für Kontrast */}
+          <ambientLight intensity={0.65} color="#f5f5ff" />
+          <hemisphereLight skyColor="#ffffff" groundColor="#d0ccc8" intensity={0.40} />
 
-          {/* Environment: apartment — weiche Reflexionen für helles Bad */}
-          <Environment preset="apartment" />
+          {/* Environment: studio — scharfe, saubere Reflexionen (Produktfoto-Look) */}
+          <Environment preset="studio" />
 
           {/* Badezimmer-Szene — bei Badewanne Boden tiefer für Wannengehäuse */}
           <BathroomScene

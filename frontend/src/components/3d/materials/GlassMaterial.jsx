@@ -39,8 +39,8 @@ export function useGlassMaterial() {
       metalness:         0.0,
       ior:               1.52,
       thickness:         0,
-      envMapIntensity:   0.10,
-      specularIntensity: 0.4,
+      envMapIntensity:   1.80,
+      specularIntensity: 1.20,
       transparent:       true,
       opacity:           0.18,
       side:              THREE.FrontSide,
@@ -62,8 +62,8 @@ export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
   mat.normalMap           = null;
   mat.metalness           = 0.0;
   mat.ior                 = 1.52;
-  mat.specularIntensity   = 0.35;
-  mat.envMapIntensity     = 0.10;
+  mat.specularIntensity   = 1.20;
+  mat.envMapIntensity     = 1.80;
 
   const glasTyp      = glass?.glasTyp      ?? 'klarglas';
   const catalogColor = glass?.color        ?? null;
@@ -78,16 +78,16 @@ export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
         mat.color.set(catalogColor ?? '#b8ccd8');
         mat.roughness         = 0.02;
         mat.metalness         = 0.15;
-        mat.envMapIntensity   = 0.65;
-        mat.specularIntensity = 0.75;
+        mat.envMapIntensity   = 2.20;
+        mat.specularIntensity = 1.40;
         mat.opacity           = 0.92 * op;  // fast opak = Spiegel
       } else {
         mat.color.set('#dde2ee');
-        mat.roughness         = 0.58;
+        mat.roughness         = 0.55;
         mat.roughnessMap      = getSatinatoMap();
-        mat.envMapIntensity   = 0.04;
-        mat.specularIntensity = 0.1;
-        mat.opacity           = 0.68 * op;  // sichtbar milchig, aber noch durchscheinend
+        mat.envMapIntensity   = 0.80;
+        mat.specularIntensity = 0.60;
+        mat.opacity           = 0.70 * op;  // milchig, aber noch durchscheinend
       }
       break;
     }
@@ -96,8 +96,8 @@ export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
     case 'parsol_bronze': {
       mat.color.set(catalogColor ?? '#b8905c');
       mat.roughness         = 0.02;
-      mat.envMapIntensity   = 0.12;
-      mat.specularIntensity = 0.3;
+      mat.envMapIntensity   = 1.60;
+      mat.specularIntensity = 1.10;
       // Transparenz: Bronze ~45 % sichtbar (dunkler als Klarglas, heller als Graphit)
       mat.opacity           = 0.46 * op;
       break;
@@ -109,8 +109,8 @@ export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
       const isGraphit = trans < 0.65;
       mat.color.set(catalogColor ?? (isGraphit ? '#525a62' : '#8090a0'));
       mat.roughness         = 0.02;
-      mat.envMapIntensity   = 0.12;
-      mat.specularIntensity = 0.3;
+      mat.envMapIntensity   = 1.60;
+      mat.specularIntensity = 1.10;
       mat.opacity           = (isGraphit ? 0.60 : 0.44) * op;
       break;
     }
@@ -120,8 +120,8 @@ export function updateGlassMaterial(mat, glass, t, opacity = 1.0) {
       const isUltraClear = (catalogTrans ?? 0.97) > 0.96;
       mat.color.set(catalogColor ?? (isUltraClear ? '#cdeef8' : '#c8e8f5'));
       mat.roughness         = 0.0;
-      mat.envMapIntensity   = 0.10;
-      mat.specularIntensity = 0.4;
+      mat.envMapIntensity   = 1.80;
+      mat.specularIntensity = 1.20;
       mat.opacity           = (isUltraClear ? 0.18 : 0.22) * op;
     }
   }

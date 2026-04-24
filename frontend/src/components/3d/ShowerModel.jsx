@@ -31,24 +31,24 @@ function getWallTex() {
     for (let x = 0; x < W; x++) {
       const nx = x / W, ny = y / H;
 
-      // Helle großformatige Fliesen: dezente Fugenlinien
-      const tileW = 1.0 / 3.0;   // 3 Fliesen horizontal
-      const tileH = 1.0 / 4.0;   // 4 Fliesen vertikal
+      // Großformatige Fliesen 60×120 cm: 2 Fliesen horizontal, 4 vertikal
+      const tileW = 1.0 / 2.0;
+      const tileH = 1.0 / 4.0;
       const fx = nx % tileW, fy = ny % tileH;
-      const groutW = 0.018;
-      const isGrout = fx < groutW || fy < groutW;
+      const groutPx = 2.5 / W;   // ~2.5px Fuge = ca. 2.5mm Fuge bei 256px
+      const isGrout = fx < groutPx || fy < groutPx;
 
-      // Feines Oberflächenrauschen
-      const grain = Math.sin(nx * 97 + ny * 137) * 2.5 + Math.sin(nx * 211 - ny * 179) * 1.5;
+      // Minimales Oberflächenrauschen (hochwertiger Feinsteinzeug-Look)
+      const grain = Math.sin(nx * 83 + ny * 127) * 1.8 + Math.sin(nx * 197 - ny * 173) * 1.2;
 
-      // Weiß/Hellgrau mit leicht warmem Unterton
-      const base = isGrout ? 210 : 245;
+      // Fliese: reines Weiß mit minimalem Warmton; Fuge: hellgrau
+      const base = isGrout ? 205 : 248;
       const v    = base + grain;
 
       const i = (y * W + x) * 4;
-      d[i]   = cl(v + 1)  | 0;
+      d[i]   = cl(v + 1)  | 0;   // R leicht wärmer
       d[i+1] = cl(v)      | 0;
-      d[i+2] = cl(v - 2)  | 0;
+      d[i+2] = cl(v - 3)  | 0;   // B minimal kühler
       d[i+3] = 255;
     }
   }
@@ -75,12 +75,12 @@ function getTrayTex() {
     for (let x = 0; x < W; x++) {
       const nx = x / W, ny = y / W;
       const grain =
-        Math.sin(nx * 41  + ny * 73)  * 3 +
-        Math.sin(nx * 127 - ny * 89)  * 2 +
-        Math.sin(nx * 211 + ny * 163) * 1;
-      const v = Math.max(200, Math.min(235, 218 + grain));
+        Math.sin(nx * 41  + ny * 73)  * 1.5 +
+        Math.sin(nx * 127 - ny * 89)  * 1.0 +
+        Math.sin(nx * 211 + ny * 163) * 0.5;
+      const v = Math.max(228, Math.min(248, 238 + grain));
       const i = (y * W + x) * 4;
-      d[i] = v | 0; d[i+1] = (v - 1) | 0; d[i+2] = (v - 3) | 0; d[i+3] = 255;
+      d[i] = v | 0; d[i+1] = (v - 1) | 0; d[i+2] = (v - 2) | 0; d[i+3] = 255;
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -643,17 +643,17 @@ function GlaswandModel({ w, h, t, glassMat, metalMat, rahmentyp }) {
       {/* Rückwand */}
       <mesh receiveShadow position={[0, 0, backZ]}>
         <boxGeometry args={[w + WT, h, WT]} />
-        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
+        <meshStandardMaterial map={wallTex} roughness={0.06} metalness={0.03} envMapIntensity={0.30} />
       </mesh>
       {/* Linke Wand */}
       <mesh receiveShadow position={[leftX, 0, -(D / 2)]}>
         <boxGeometry args={[WT, h, D]} />
-        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
+        <meshStandardMaterial map={wallTex} roughness={0.06} metalness={0.03} envMapIntensity={0.30} />
       </mesh>
       {/* Duschwanne im Nassbereich (hinter dem Glas) */}
       <mesh receiveShadow position={[0, floorY, wetCZ]}>
         <boxGeometry args={[w + WT + 0.01, TH, wetD + WT + 0.01]} />
-        <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
+        <meshStandardMaterial map={trayTex} roughness={0.12} metalness={0.02} envMapIntensity={0.30} />
       </mesh>
       {/* Rinnenablauf */}
       <mesh position={[0, -h / 2 + 0.006, wetCZ + 0.04]}>

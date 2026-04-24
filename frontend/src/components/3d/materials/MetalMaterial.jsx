@@ -16,9 +16,9 @@ export function useMetalMaterial() {
   const mat = useRef(
     new THREE.MeshStandardMaterial({
       color:           new THREE.Color('#f2f2f4'),
-      metalness:       0.96,
-      roughness:       0.04,
-      envMapIntensity: 2.2,
+      metalness:       0.97,
+      roughness:       0.03,
+      envMapIntensity: 3.0,
     })
   );
   return mat;
@@ -37,17 +37,17 @@ export function updateMetalMaterial(mat, metal) {
 
     case 'poliert': {
       // Mirror chrome / polished
-      mat.metalness       = 0.97;
-      mat.roughness       = 0.03;
-      mat.envMapIntensity = 2.6;
+      mat.metalness       = 0.98;
+      mat.roughness       = 0.02;
+      mat.envMapIntensity = 3.5;
       break;
     }
 
     case 'gebürstet': {
       // Satin / brushed
-      mat.metalness       = 0.92;
-      mat.roughness       = 0.28;
-      mat.envMapIntensity = 1.4;
+      mat.metalness       = 0.93;
+      mat.roughness       = 0.25;
+      mat.envMapIntensity = 2.0;
       break;
     }
 
@@ -83,9 +83,9 @@ export function updateMetalMaterial(mat, metal) {
     }
 
     default: {
-      mat.metalness       = 0.96;
-      mat.roughness       = 0.04;
-      mat.envMapIntensity = 2.2;
+      mat.metalness       = 0.97;
+      mat.roughness       = 0.03;
+      mat.envMapIntensity = 3.0;
     }
   }
 
