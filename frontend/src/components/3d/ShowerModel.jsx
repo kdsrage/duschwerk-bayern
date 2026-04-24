@@ -31,35 +31,24 @@ function getWallTex() {
     for (let x = 0; x < W; x++) {
       const nx = x / W, ny = y / H;
 
-      // Leichtgewichtiges Domain-Warping mit sin-Kaskade
-      const wx = nx * 3.8
-        + Math.sin(nx * 6.2 + ny * 4.1) * 0.55
-        + Math.sin(ny * 9.8 - nx * 3.3) * 0.28
-        + Math.sin(nx * 18 + ny * 14)   * 0.12;
-      const wy = ny * 5.2
-        + Math.sin(ny * 5.5 - nx * 7.3) * 0.50
-        + Math.sin(nx * 11  + ny * 8.2) * 0.24
-        + Math.sin(ny * 21  - nx * 16)  * 0.10;
+      // Helle großformatige Fliesen: dezente Fugenlinien
+      const tileW = 1.0 / 3.0;   // 3 Fliesen horizontal
+      const tileH = 1.0 / 4.0;   // 4 Fliesen vertikal
+      const fx = nx % tileW, fy = ny % tileH;
+      const groutW = 0.018;
+      const isGrout = fx < groutW || fy < groutW;
 
-      // Hauptadern: schmale, fließende Linien
-      const t1 = Math.sin(wx * 1.4 + wy * 1.1);
-      const v1 = Math.pow(Math.max(0, 1 - Math.abs(t1)), 3.0) * 88;
-      // Feinadern
-      const t2 = Math.sin(wx * 3.2 + wy * 2.5 + Math.sin(wx) * 1.2);
-      const v2 = Math.pow(Math.max(0, 1 - Math.abs(t2)), 5.5) * 36;
-      // Hintergrundrauschen (winzige Körnung)
-      const grain = Math.sin(nx * 97 + ny * 137) * 4 + Math.sin(nx * 213 - ny * 179) * 2;
+      // Feines Oberflächenrauschen
+      const grain = Math.sin(nx * 97 + ny * 137) * 2.5 + Math.sin(nx * 211 - ny * 179) * 1.5;
 
-      // Calacatta: helles Creme-Weiß (232), dunkelgraue Adern
-      const base = 232 + grain;
-      const v    = base - v1 - v2;
+      // Weiß/Hellgrau mit leicht warmem Unterton
+      const base = isGrout ? 210 : 245;
+      const v    = base + grain;
 
-      // Leichter Warmton im Untergrund
-      const warm = Math.sin(nx * 2.1 + ny * 1.6) * 7;
       const i = (y * W + x) * 4;
-      d[i]   = cl(v + warm)       | 0;
-      d[i+1] = cl(v + warm * 0.3) | 0;
-      d[i+2] = cl(v - warm * 0.5) | 0;
+      d[i]   = cl(v + 1)  | 0;
+      d[i+1] = cl(v)      | 0;
+      d[i+2] = cl(v - 2)  | 0;
       d[i+3] = 255;
     }
   }
@@ -86,12 +75,12 @@ function getTrayTex() {
     for (let x = 0; x < W; x++) {
       const nx = x / W, ny = y / W;
       const grain =
-        Math.sin(nx * 41  + ny * 73)  * 6 +
-        Math.sin(nx * 127 - ny * 89)  * 4 +
-        Math.sin(nx * 211 + ny * 163) * 2;
-      const v = Math.max(20, Math.min(58, 36 + grain));
+        Math.sin(nx * 41  + ny * 73)  * 3 +
+        Math.sin(nx * 127 - ny * 89)  * 2 +
+        Math.sin(nx * 211 + ny * 163) * 1;
+      const v = Math.max(200, Math.min(235, 218 + grain));
       const i = (y * W + x) * 4;
-      d[i] = v | 0; d[i+1] = v | 0; d[i+2] = (v + 3) | 0; d[i+3] = 255;
+      d[i] = v | 0; d[i+1] = (v - 1) | 0; d[i+2] = (v - 3) | 0; d[i+3] = 255;
     }
   }
   ctx.putImageData(img, 0, 0);
@@ -117,19 +106,19 @@ function RainShower({ w, h }) {
     <group>
       <mesh position={[0, topY - 0.018, -(D - armLen / 2)]}>
         <boxGeometry args={[0.020, 0.020, armLen]} />
-        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
+        <meshStandardMaterial color="#d8d8d8" metalness={0.92} roughness={0.10} envMapIntensity={1.2} />
       </mesh>
       <mesh position={[0, topY - 0.055, headZ]}>
         <boxGeometry args={[0.020, 0.074, 0.020]} />
-        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
+        <meshStandardMaterial color="#d8d8d8" metalness={0.92} roughness={0.10} envMapIntensity={1.2} />
       </mesh>
       <mesh castShadow position={[0, topY - 0.094, headZ]}>
         <boxGeometry args={[headW, 0.016, headD]} />
-        <meshStandardMaterial color="#141414" metalness={0.82} roughness={0.22} envMapIntensity={0.8} />
+        <meshStandardMaterial color="#d0d0d0" metalness={0.92} roughness={0.10} envMapIntensity={1.2} />
       </mesh>
       <mesh position={[0, topY - 0.103, headZ]}>
         <boxGeometry args={[headW - 0.012, 0.002, headD - 0.012]} />
-        <meshStandardMaterial color="#888888" metalness={0.95} roughness={0.08} envMapIntensity={1.2} />
+        <meshStandardMaterial color="#b8b8b8" metalness={0.96} roughness={0.06} envMapIntensity={1.5} />
       </mesh>
     </group>
   );
@@ -152,30 +141,30 @@ function ShowerEnclosure({ w, h, einbausituation = 'nische' }) {
       {/* Rückwand */}
       <mesh receiveShadow position={[0, 0, backZ]}>
         <boxGeometry args={[hasRightWall ? w + WT * 2 : w + WT, h, WT]} />
-        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
+        <meshStandardMaterial map={wallTex} roughness={0.08} metalness={0.02} envMapIntensity={0.35} />
       </mesh>
       {/* Linke Wand */}
       <mesh receiveShadow position={[leftX, 0, sideZ]}>
         <boxGeometry args={[WT, h, D]} />
-        <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
+        <meshStandardMaterial map={wallTex} roughness={0.08} metalness={0.02} envMapIntensity={0.35} />
       </mesh>
       {/* Rechte Wand — nur Nische */}
       {hasRightWall && (
         <mesh receiveShadow position={[rightX, 0, sideZ]}>
           <boxGeometry args={[WT, h, D]} />
-          <meshStandardMaterial map={wallTex} roughness={0.12} metalness={0.02} envMapIntensity={0.55} />
+          <meshStandardMaterial map={wallTex} roughness={0.08} metalness={0.02} envMapIntensity={0.35} />
         </mesh>
       )}
 
-      {/* Duschwanne (polierter Anthrazit) — Rückseite bündig mit Außenwand */}
+      {/* Duschwanne (heller Stein/Acryl) — Rückseite bündig mit Außenwand */}
       <mesh receiveShadow position={[0, floorY, -(D / 2 + WT / 2)]}>
         <boxGeometry args={[hasRightWall ? w + WT * 2 + 0.01 : w + WT + 0.01, TH, D + WT + 0.01]} />
-        <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
+        <meshStandardMaterial map={trayTex} roughness={0.18} metalness={0.02} envMapIntensity={0.40} />
       </mesh>
       {/* Vordere Wannenlippe */}
       <mesh position={[0, -h / 2 + 0.008, -0.006]}>
         <boxGeometry args={[hasRightWall ? w + WT * 2 + 0.01 : w + WT + 0.01, 0.016, 0.012]} />
-        <meshStandardMaterial map={trayTex} roughness={0.06} metalness={0.08} envMapIntensity={0.70} />
+        <meshStandardMaterial map={trayTex} roughness={0.18} metalness={0.02} envMapIntensity={0.40} />
       </mesh>
 
       {/* Rinnenablauf-Abdeckung (Edelstahl) */}
@@ -463,8 +452,8 @@ function ShowerFixture({ h }) {
   const tY     = -h / 2 + 1.00;  // Thermostat 100 cm ab Boden
   const barCY  = -h / 2 + 0.62;  // Stangen-Mitte
 
-  const C = '#0f0f0f';  // mattschwarz
-  const M = { color: C, metalness: 0.82, roughness: 0.20, envMapIntensity: 0.6 };
+  const C = '#d4d4d4';  // Chrom/Silber
+  const M = { color: C, metalness: 0.94, roughness: 0.08, envMapIntensity: 1.3 };
 
   return (
     <group>
@@ -536,7 +525,7 @@ const TYPE_COMPONENTS = {
 function BathtubFixture({ w, backZ, tubTopY }) {
   const z  = backZ + WT + 0.026;
   const fY = tubTopY + 0.06;
-  const M  = { color: '#181818', metalness: 0.92, roughness: 0.08, envMapIntensity: 1.0 };
+  const M  = { color: '#d4d4d4', metalness: 0.94, roughness: 0.08, envMapIntensity: 1.3 };
 
   return (
     <group position={[-w * 0.25, 0, 0]}>

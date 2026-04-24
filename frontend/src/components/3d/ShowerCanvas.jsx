@@ -18,10 +18,10 @@ function BackgroundGradient() {
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0.00, '#07080a');   // oben: fast schwarz
-    g.addColorStop(0.35, '#0e1118');   // mitte-oben: dunkel
-    g.addColorStop(0.75, '#141c28');   // mitte-unten: blau-grau Stich
-    g.addColorStop(1.00, '#0a0e14');   // unten: zurück dunkel (Boden)
+    g.addColorStop(0.00, '#f5f6f8');   // oben: helles Grau
+    g.addColorStop(0.45, '#eceef2');   // mitte: leicht wärmer
+    g.addColorStop(0.80, '#e4e6ea');   // mitte-unten: dezent
+    g.addColorStop(1.00, '#dcdee3');   // unten: Bodenton
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
@@ -136,7 +136,7 @@ export default function ShowerCanvas({ config, isComplete }) {
             antialias:           true,
             alpha:               false,
             toneMapping:         4,
-            toneMappingExposure: 1.10,
+            toneMappingExposure: 1.30,
             outputColorSpace:    'srgb',
             powerPreference:     'high-performance',
           }}
@@ -144,7 +144,7 @@ export default function ShowerCanvas({ config, isComplete }) {
           frameloop="always"
           camera={{ fov: 38, position: [0, 0, 4.5], near: 0.05, far: 80 }}
           dpr={[1, 2]}
-          style={{ background: '#07080a' }}
+          style={{ background: '#f0f1f4' }}
           onPointerDown={() => setIsDragging(true)}
           onPointerUp={() => setIsDragging(false)}
           onPointerLeave={() => setIsDragging(false)}
@@ -156,9 +156,9 @@ export default function ShowerCanvas({ config, isComplete }) {
           <ZoomController h={mapped.h} zoomRef={zoomRef} />
 
           {/* ── Beleuchtung ─────────────────────────────────── */}
-          {/* Hauptlicht: schräg von oben-links (Deckenspot) */}
+          {/* Hauptlicht: schräg von oben-links (Tageslicht-Fenster) */}
           <directionalLight
-            position={[-1.5, 6, 3.5]} intensity={0.85} color="#fffcf8"
+            position={[-2.0, 5, 4.0]} intensity={1.10} color="#fff8f0"
             castShadow
             shadow-mapSize-width={1024} shadow-mapSize-height={1024}
             shadow-camera-near={0.5} shadow-camera-far={18}
@@ -166,16 +166,16 @@ export default function ShowerCanvas({ config, isComplete }) {
             shadow-camera-top={4}   shadow-camera-bottom={-4}
             shadow-bias={-0.0004}   shadow-normalBias={0.025}
           />
-          {/* Fülllicht rechts (kühler, Fensterseite) */}
-          <directionalLight position={[4, 2, 2.5]} intensity={0.28} color="#dde8ff" />
+          {/* Fülllicht rechts (helles Tageslicht) */}
+          <directionalLight position={[4, 3, 2.5]} intensity={0.55} color="#f0f6ff" />
           {/* Rücklicht für Chromkanten */}
-          <directionalLight position={[0.5, 1.5, -4]} intensity={0.16} color="#ffffff" />
-          {/* Ambientes Licht — warm, dezent */}
-          <ambientLight intensity={0.70} color="#fff5ee" />
-          <hemisphereLight skyColor="#ffffff" groundColor="#c8c0b4" intensity={0.35} />
+          <directionalLight position={[0.5, 2, -4]} intensity={0.30} color="#ffffff" />
+          {/* Ambientes Licht — hell, neutral */}
+          <ambientLight intensity={1.10} color="#ffffff" />
+          <hemisphereLight skyColor="#ffffff" groundColor="#d8d4cc" intensity={0.55} />
 
-          {/* Environment: warehouse — scharfe Chrome-Reflexionen */}
-          <Environment preset="warehouse" />
+          {/* Environment: apartment — weiche Reflexionen für helles Bad */}
+          <Environment preset="apartment" />
 
           {/* Badezimmer-Szene — bei Badewanne Boden tiefer für Wannengehäuse */}
           <BathroomScene
