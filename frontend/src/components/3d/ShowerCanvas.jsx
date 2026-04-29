@@ -66,8 +66,8 @@ function OrbitController({ h, zoomRef, orbitRef, orbitVelRef, isDragRef }) {
       const vt = orbitVelRef.current.theta;
       const vp = orbitVelRef.current.phi;
       if (Math.abs(vt) > 0.0001 || Math.abs(vp) > 0.0001) {
-        orbitRef.current.theta += vt;
-        orbitRef.current.phi = Math.max(-0.28, Math.min(0.48, orbitRef.current.phi + vp));
+        orbitRef.current.theta = Math.max(-1.30, Math.min(1.55, orbitRef.current.theta + vt));
+        orbitRef.current.phi   = Math.max(-0.12, Math.min(0.40, orbitRef.current.phi   + vp));
         orbitVelRef.current.theta *= 0.88;
         orbitVelRef.current.phi   *= 0.88;
       }
@@ -115,6 +115,12 @@ export default function ShowerCanvas({ config, isComplete }) {
   const orbitStart  = useRef({ theta: 0.18, phi: 0.06 });
   const prevMouseRef = useRef({ x: 0, y: 0 });
 
+  const [doorOpen, setDoorOpen] = useState(false);
+  const hasDoor = isComplete && config?.typ && config.typ !== 'Walk-in';
+
+  // Tür schließen wenn Typ wechselt
+  useEffect(() => { setDoorOpen(false); }, [config?.typ]);
+
   const mapped = useMemo(() => mapConfig(config ?? {}), [config]);
 
   // Zoom-Buttons
@@ -138,8 +144,9 @@ export default function ShowerCanvas({ config, isComplete }) {
 
   const onPointerMove = useCallback((e) => {
     if (!isDragRef.current) return;
-    orbitRef.current.theta = orbitStart.current.theta - (e.clientX - dragStartRef.current.x) * 0.011;
-    orbitRef.current.phi   = Math.max(-0.28, Math.min(0.48,
+    orbitRef.current.theta = Math.max(-1.30, Math.min(1.55,
+      orbitStart.current.theta - (e.clientX - dragStartRef.current.x) * 0.011));
+    orbitRef.current.phi   = Math.max(-0.12, Math.min(0.40,
       orbitStart.current.phi + (e.clientY - dragStartRef.current.y) * 0.008));
     orbitVelRef.current.theta = -(e.clientX - prevMouseRef.current.x) * 0.011;
     orbitVelRef.current.phi   =  (e.clientY - prevMouseRef.current.y) * 0.008;
@@ -170,7 +177,7 @@ export default function ShowerCanvas({ config, isComplete }) {
             antialias:           true,
             alpha:               false,
             toneMapping:         4,
-            toneMappingExposure: 1.22,
+            toneMappingExposure: 0.88,
             outputColorSpace:    'srgb',
             powerPreference:     'high-performance',
           }}
@@ -191,45 +198,51 @@ export default function ShowerCanvas({ config, isComplete }) {
             isDragRef={isDragRef}
           />
 
-          {/* ── Beleuchtung (warm, Spa-Atmosphäre) ─────────── */}
-          {/* Key-Light: warmes Morgenlicht von links-oben */}
+          {/* ── Beleuchtung: natürlich, gedämpft, nicht überbelichtet ── */}
+          {/* Key-Light: Tageslicht vom rechten Fenster */}
           <directionalLight
-            position={[-3.0, 7, 4.0]} intensity={1.05} color="#ffe0a8"
+            position={[4.5, 5.5, 2.5]} intensity={0.80} color="#fff8ec"
             castShadow
-            shadow-mapSize-width={2048} shadow-mapSize-height={2048}
-            shadow-camera-near={0.5} shadow-camera-far={22}
-            shadow-camera-left={-4} shadow-camera-right={4}
-            shadow-camera-top={5}   shadow-camera-bottom={-5}
-            shadow-bias={-0.0003}   shadow-normalBias={0.020}
+            shadow-mapSize-width={4096} shadow-mapSize-height={4096}
+            shadow-camera-near={0.5} shadow-camera-far={28}
+            shadow-camera-left={-6} shadow-camera-right={6}
+            shadow-camera-top={7}   shadow-camera-bottom={-7}
+            shadow-bias={-0.00012}  shadow-normalBias={0.013}
           />
-          {/* Fill-Light von rechts: warmes indirektes Licht */}
-          <directionalLight position={[5, 3, 2.0]} intensity={0.38} color="#ffd8a0" />
-          {/* Rim-Light hinten: Gold-Highlights auf Messing/Chrom */}
-          <directionalLight position={[0, 2.5, -5]} intensity={0.35} color="#ffe4b0" />
-          {/* Top-Light: warme Deckenaufhellung */}
-          <directionalLight position={[0, 9, 0]} intensity={0.28} color="#ffecc0" />
+          {/* Fill: diffuses indirektes Licht */}
+          <directionalLight position={[-3.8, 3.2, 3.8]} intensity={0.24} color="#fdf2e4" />
+          {/* Rim: für Tiefe und Kanten */}
+          <directionalLight position={[0.5, 7.0, -6.0]} intensity={0.16} color="#fff9f4" />
+          {/* Top */}
+          <directionalLight position={[0.5, 10, 1.0]} intensity={0.10} color="#fff6ee" />
 
-          {/* Ambientes Licht — warm, golden */}
-          <ambientLight intensity={0.68} color="#ffe8c0" />
-          <hemisphereLight skyColor="#fff4d8" groundColor="#d4a060" intensity={0.42} />
+          {/* Ambient — minimal, für tiefe Schatten */}
+          <ambientLight intensity={0.16} color="#ffe0c8" />
+          <hemisphereLight skyColor="#fff8f0" groundColor="#c89060" intensity={0.22} />
 
-          {/* Fensterlicht rechts: warmes Morgenlicht */}
-          <pointLight position={[3.8, 0.2, -0.35]} intensity={2.20} color="#ffd890" distance={7} decay={2} />
-          {/* Deckenspot über Dusche */}
-          <pointLight position={[0.3, 0.50, -0.4]} intensity={1.40} color="#fff4d8" distance={4} decay={2} />
-          {/* Deckenspot über Waschtisch */}
-          <pointLight position={[2.2, 0.50, -0.4]} intensity={0.90} color="#ffecc4" distance={3.5} decay={2} />
-          {/* LED-Spiegel: intensives warmes Messing-Glühen */}
-          <pointLight position={[1.30, -0.75, -1.02]} intensity={0.80} color="#ffb830" distance={2.8} decay={2} />
-          {/* Kerzen-Warmton (diffuses Kerzenlicht) */}
-          <pointLight position={[1.10, -0.62, -0.80]} intensity={0.50} color="#ff8820" distance={1.8} decay={2} />
-          {/* Linkes Fenster: warmes Seitenlicht (kein Kalt-Blau) */}
-          <pointLight position={[-2.00, -0.40, -0.55]} intensity={1.00} color="#fce8c0" distance={5.0} decay={2} />
-          {/* Boden-Reflex: warmes goldenes Aufhellicht */}
-          <pointLight position={[0.0, -1.80, 0.5]} intensity={0.35} color="#d4902c" distance={4.0} decay={2} />
+          {/* Fensterlicht */}
+          <pointLight position={[4.3, 1.2, -0.35]} intensity={2.8} color="#fffaec" distance={10} decay={2} />
+          <pointLight position={[-2.6, 0.3, -0.55]} intensity={1.5} color="#fef5e6" distance={7.0} decay={2} />
 
-          {/* Environment: apartment — warm, weich, ideal für Innenräume */}
-          <Environment preset="apartment" />
+          {/* Deckenspots — symmetrisches 2×2-Raster */}
+          <pointLight position={[-0.63, 0.44, -0.44]} intensity={1.4} color="#fff9f2" distance={4.0} decay={2} />
+          <pointLight position={[ 1.13, 0.44, -0.44]} intensity={1.4} color="#fff8ef" distance={4.0} decay={2} />
+          <pointLight position={[-0.63, 0.44,  1.06]} intensity={1.3} color="#fff7ef" distance={4.0} decay={2} />
+          <pointLight position={[ 1.13, 0.44,  1.06]} intensity={1.3} color="#fff7ec" distance={4.0} decay={2} />
+
+          {/* LED-Spiegel */}
+          <pointLight position={[1.30, -0.48, -1.00]} intensity={1.4} color="#ffd870" distance={2.6} decay={2} />
+          {/* Kerzen */}
+          <pointLight position={[1.10, -0.56, -0.78]} intensity={0.65} color="#ff8820" distance={1.6} decay={2} />
+          {/* LED-Streifen unter Schrank */}
+          <pointLight position={[1.30, -1.08, -0.78]} intensity={0.90} color="#ffe8a8" distance={2.2} decay={2} />
+          {/* Boden-Reflex */}
+          <pointLight position={[0.0, -1.70, 0.6]} intensity={0.38} color="#d49030" distance={4.5} decay={2} />
+          {/* Cove */}
+          <pointLight position={[0.0,  0.55, 1.8]} intensity={0.55} color="#fff8e8" distance={5.0} decay={2} />
+
+          {/* Environment: studio — klare Reflexionen für Glas, Chrom und Marmor */}
+          <Environment preset="studio" />
 
           {/* Badezimmer-Szene */}
           <BathroomScene
@@ -239,7 +252,7 @@ export default function ShowerCanvas({ config, isComplete }) {
 
           {/* Modell — NUR wenn Konfiguration abgeschlossen */}
           {isComplete && (
-            <ShowerModel config={config} />
+            <ShowerModel config={config} doorOpen={doorOpen} />
           )}
         </Canvas>
       </Suspense>
@@ -248,6 +261,16 @@ export default function ShowerCanvas({ config, isComplete }) {
       <div className="canvas-controls" onPointerDown={(e) => e.stopPropagation()}>
         <button className="zoom-btn" title="Vergrößern (Zoom In)" onClick={zoomIn}>+</button>
         <button className="zoom-btn" title="Verkleinern (Zoom Out)" onClick={zoomOut}>−</button>
+        {hasDoor && (
+          <button
+            className="zoom-btn door-btn"
+            title={doorOpen ? 'Tür schließen' : 'Tür öffnen'}
+            onClick={() => setDoorOpen(v => !v)}
+            style={{ marginTop: 8, fontSize: '0.72rem', padding: '6px 10px', letterSpacing: '0.04em', width: 'auto' }}
+          >
+            {doorOpen ? '× Tür' : '↗ Tür'}
+          </button>
+        )}
       </div>
 
       {isComplete && <div className="viewer-badge">3D</div>}

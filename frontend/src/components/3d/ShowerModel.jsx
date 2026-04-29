@@ -14,45 +14,82 @@ const D   = 0.90;    // Duschtiefe front→back
 const WT  = 0.14;    // Wandstärke
 const TH  = 0.055;   // Wanenhöhe
 
-// ── Marmor-Textur: sin-basiertes Domain-Warping (performant) ─
+// ── Prozedurales Rauschen (Value Noise + FBM) ────────────────
+function _sh(x, y) { const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+function _sf(t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
+function _svn(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y);
+  const u = _sf(x - xi), v = _sf(y - yi);
+  return _sh(xi,yi)*(1-u)*(1-v) + _sh(xi+1,yi)*u*(1-v) + _sh(xi,yi+1)*(1-u)*v + _sh(xi+1,yi+1)*u*v;
+}
+function _sfbm(x, y, oct = 5) {
+  let s = 0, a = 0.5, f = 1.0, n = 0;
+  for (let i = 0; i < oct; i++) { s += _svn(x*f,y*f)*a; n+=a; a*=0.5; f*=2.07; }
+  return s / n;
+}
+function _swfbm(x, y) {
+  const wx = _sfbm(x,y,4)*3.0, wy = _sfbm(x+5.2,y+1.3,4)*3.0;
+  return _sfbm(x+wx, y+wy, 4);
+}
+
+// ── Wandfliesen: Großformat 120×240 cm Bianco Statuario Porzellan ────
+// Subtile Marmor-Maserung, ultra-poliert, kaum sichtbare Fugen
 let _wallTex = null;
 function getWallTex() {
   if (_wallTex) return _wallTex;
-  // 512×512 — 4K-Qualität Feinsteinzeug 60×120 cm
-  const W = 512, H = 512;
+  const W = 1024, H = 1024;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   const img = ctx.createImageData(W, H);
   const d = img.data;
-  const cl = (v) => Math.max(80, Math.min(252, v)) | 0;
+  const cl = v => (v < 0 ? 0 : v > 255 ? 255 : v) | 0;
 
-  // 2 Fliesen horizontal × 4 vertikal (60×120 cm Format)
-  const TILES_X = 2, TILES_Y = 4;
-  const TILE_PX = W / TILES_X, TILE_PY = H / TILES_Y;
-  const GROUT = 3; // 3px scharfe Fuge
+  // Großformat 120×240 cm → 1 Fliese breit, 2 hoch pro Textur (sehr wenig Fugen)
+  const TW = W, TH = H / 2;
+  const GR = 3; // nur 3px Fuge — kaum sichtbar
+
+  // Vein-Hilfsfunktion (wie in Marmor)
+  function vein(f, thr, sharp) {
+    const dist = Math.abs(f * 2.0 - 1.0);
+    return dist < thr ? Math.pow(1.0 - dist / thr, sharp) : 0.0;
+  }
 
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      const tileX = Math.floor(x / TILE_PX);
-      const tileY = Math.floor(y / TILE_PY);
-      const gx = x % TILE_PX, gy = y % TILE_PY;
-      const isGrout = gx < GROUT || gy < GROUT;
-      // Lokale Koordinaten für einheitliches Muster pro Fliese
-      const lx = gx < GROUT ? 0 : (gx - GROUT) / (TILE_PX - GROUT);
-      const ly = gy < GROUT ? 0 : (gy - GROUT) / (TILE_PY - GROUT);
-      // Minimale Farbvariation pro Fliese
-      const hash = Math.abs(Math.sin(tileX * 127.1 + tileY * 311.7) * 43758.5453) % 1;
-      const tileVar = (hash - 0.5) * 6;
+      const tx = x % TW, ty = y % TH;
+      const tileX = (x / TW) | 0, tileY = (y / TH) | 0;
+      const isGrout = tx < GR || ty < GR;
       let r, g, b;
+
       if (isGrout) {
-        r = 196; g = 193; b = 189; // Hellgrau Fuge
+        // Feiner Grau-Grout, kaum sichtbar
+        const gn = (_svn(x * 0.4, y * 0.4) - 0.5) * 5;
+        r = cl(195 + gn); g = cl(196 + gn); b = cl(198 + gn);
       } else {
-        const grain  = Math.sin(lx * 83  + ly * 127) * 1.6 + Math.sin(lx * 197 - ly * 173) * 1.0;
-        const cloud  = Math.sin(lx * 3.2 + ly * 2.8) * 2.8 + Math.sin(lx * 1.9 - ly * 4.1) * 1.8;
-        const micro  = Math.sin(lx * 389 + ly * 421) * 0.3;
-        const base   = 248 + tileVar + grain * 0.4 + cloud * 0.25 + micro;
-        r = cl(base + 2); g = cl(base + 1); b = cl(base - 2);
+        // Normalisierte Koordinaten pro Fliese
+        const nx = (tx / TW) * 3.5 + tileX * 2.3;
+        const ny = (ty / TH) * 4.0 + tileY * 1.8;
+
+        // Subtile Wolken-Basis (sehr hell, fast weiß)
+        const cloud = (_sfbm(nx * 0.4, ny * 0.35, 5) - 0.5) * 12;
+        const micro = (_svn(x * 0.5, y * 0.5) - 0.5) * 2;
+        const tVar  = (_sh(tileX * 41.2, tileY * 73.6) - 0.5) * 6;
+        const base  = 251 + tVar + cloud + micro;
+
+        // Feine Statuario-Äderung (sehr dezent, grau-blau)
+        const wx = _sfbm(nx * 0.6,       ny * 0.5,       4) * 2.8;
+        const wy = _sfbm(nx * 0.6 + 5.1, ny * 0.5 + 2.3, 4) * 2.8;
+        const f1  = _sfbm(nx * 0.8 + wx, ny * 0.7 + wy,  5);
+        const v1  = vein(f1, 0.22, 2.5) * 0.6 + vein(f1, 0.08, 4.0) * 0.4;
+        const f2  = _sfbm(nx * 1.8 + 1.2, ny * 1.6 + 2.8, 4);
+        const v2  = vein(f2, 0.14, 3.0) * 0.5;
+
+        const dk = v1 * 38 + v2 * 18;
+        // Leichter Blau-Grau-Ton in den Ädern (typisch Statuario)
+        r = cl(base - dk * 0.85);
+        g = cl(base - dk * 0.90);
+        b = cl(base - dk * 0.65 + 4);
       }
       const i = (y * W + x) * 4;
       d[i] = r; d[i+1] = g; d[i+2] = b; d[i+3] = 255;
@@ -61,39 +98,43 @@ function getWallTex() {
   ctx.putImageData(img, 0, 0);
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(1.0, 0.85);
+  tex.repeat.set(0.9, 1.0);
   tex.anisotropy = 16;
   return (_wallTex = tex);
 }
 
-// ── Dunkler Anthrazit-Stein (Duschwanne) ─────────────────────
+// ── Duschwanne: Anthrazit-Schiefer (512 px, FBM) ─────────────
 let _trayTex = null;
 function getTrayTex() {
   if (_trayTex) return _trayTex;
-  const W = 128;
+  const W = 512, H = 512;
   const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = W;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  const img = ctx.createImageData(W, W);
+  const img = ctx.createImageData(W, H);
   const d = img.data;
+  const cl = v => (v < 0 ? 0 : v > 255 ? 255 : v) | 0;
 
-  for (let y = 0; y < W; y++) {
+  for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
-      const nx = x / W, ny = y / W;
-      const grain =
-        Math.sin(nx * 41  + ny * 73)  * 1.5 +
-        Math.sin(nx * 127 - ny * 89)  * 1.0 +
-        Math.sin(nx * 211 + ny * 163) * 0.5;
-      const v = Math.max(228, Math.min(248, 238 + grain));
+      const nx = x / W * 4.5, ny = y / H * 4.5;
+      const wf   = _swfbm(nx * 0.8, ny * 0.8);
+      const fine  = _sfbm(nx * 3.0, ny * 3.0, 4);
+      const micro = (_svn(x * 0.6, y * 0.6) - 0.5) * 4;
+      // Anthrazit: dunkles kühles Grau
+      const base = 56 + (wf - 0.5) * 24 + (fine - 0.5) * 12 + micro;
       const i = (y * W + x) * 4;
-      d[i] = v | 0; d[i+1] = (v - 1) | 0; d[i+2] = (v - 2) | 0; d[i+3] = 255;
+      d[i]   = cl(base + 2);
+      d[i+1] = cl(base + 2);
+      d[i+2] = cl(base + 4);
+      d[i+3] = 255;
     }
   }
   ctx.putImageData(img, 0, 0);
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(3, 3);
-  tex.anisotropy = 8;
+  tex.repeat.set(2.5, 2.5);
+  tex.anisotropy = 16;
   return (_trayTex = tex);
 }
 
@@ -147,18 +188,18 @@ function ShowerEnclosure({ w, h, einbausituation = 'nische' }) {
       {/* Rückwand */}
       <mesh receiveShadow position={[0, 0, backZ]}>
         <boxGeometry args={[hasRightWall ? w + WT * 2 : w + WT, h, WT]} />
-        <meshStandardMaterial map={wallTex} roughness={0.05} metalness={0.02} envMapIntensity={0.60} />
+        <meshStandardMaterial map={wallTex} roughness={0.03} metalness={0.02} envMapIntensity={0.75} />
       </mesh>
       {/* Linke Wand */}
       <mesh receiveShadow position={[leftX, 0, sideZ]}>
         <boxGeometry args={[WT, h, D]} />
-        <meshStandardMaterial map={wallTex} roughness={0.05} metalness={0.02} envMapIntensity={0.60} />
+        <meshStandardMaterial map={wallTex} roughness={0.03} metalness={0.02} envMapIntensity={0.75} />
       </mesh>
       {/* Rechte Wand — nur Nische */}
       {hasRightWall && (
         <mesh receiveShadow position={[rightX, 0, sideZ]}>
           <boxGeometry args={[WT, h, D]} />
-          <meshStandardMaterial map={wallTex} roughness={0.05} metalness={0.02} envMapIntensity={0.60} />
+          <meshStandardMaterial map={wallTex} roughness={0.03} metalness={0.02} envMapIntensity={0.75} />
         </mesh>
       )}
 
@@ -179,18 +220,7 @@ function ShowerEnclosure({ w, h, einbausituation = 'nische' }) {
         <meshStandardMaterial color="#909090" metalness={0.95} roughness={0.08} envMapIntensity={1.2} />
       </mesh>
 
-      {/* Abflussdeckel (rund, Edelstahl-Silber) — flach auf Wannenoberfläche */}
-      <mesh position={[0, -h / 2 + 0.001, -(D / 2)]}>
-        <cylinderGeometry args={[0.055, 0.055, 0.003, 24]} />
-        <meshStandardMaterial color="#c0c0c0" metalness={0.96} roughness={0.10} envMapIntensity={1.4} />
-      </mesh>
-      {/* Ablauf-Gitter (kreuzförmige Schlitze als dünne Streben) */}
-      {[0, Math.PI / 2].map((rot, i) => (
-        <mesh key={i} rotation={[0, rot, 0]} position={[0, -h / 2 + 0.003, -(D / 2)]}>
-          <boxGeometry args={[0.100, 0.004, 0.004]} />
-          <meshStandardMaterial color="#888888" metalness={0.90} roughness={0.18} />
-        </mesh>
-      ))}
+      {/* Ablauf: nur schlanke Edelstahl-Rinne an der Rückwand */}
 
       {/* Decken-Regendusche */}
       <RainShower w={w} h={h} />
@@ -293,28 +323,61 @@ function WalkIn({ w, h, t, glassMat, metalMat, rahmentyp }) {
 }
 
 // ── Drehtür ──────────────────────────────────────────────────
-function Drehtuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
+function Drehtuer({ w, h, t, glassMat, metalMat, rahmentyp, doorOpen }) {
   const voll    = rahmentyp === 'vollgerahmt';
   const pw      = voll ? P * 1.7 : P;
   const glassH  = rahmentyp === 'rahmenlos' ? h : h - pw * 2;
-  // Glas bleibt innerhalb der Rahmenprofile
   const innerW  = rahmentyp === 'rahmenlos' ? w : w - pw * 2;
   const fixW    = innerW * 0.30;
   const doorW   = innerW - fixW - P;
   const midX    = -w / 2 + (rahmentyp === 'rahmenlos' ? 0 : pw) + fixW + P / 2;
+  // Scharnier-Pivot = linke Kante des Türblatts
+  const hingeX  = midX + P / 2;
+
+  const doorGroupRef = useRef();
+  const angleRef     = useRef(0);
+
+  useFrame(() => {
+    const target = doorOpen ? Math.PI * 0.48 : 0;
+    angleRef.current += (target - angleRef.current) * 0.07;
+    if (doorGroupRef.current) {
+      doorGroupRef.current.rotation.y = -angleRef.current;
+    }
+  });
 
   return (
     <group>
-      {/* Festes Seitenteil (links) — inset um pw */}
+      {/* Festes Seitenteil (links) */}
       <mesh castShadow position={[-w / 2 + (rahmentyp === 'rahmenlos' ? 0 : pw) + fixW / 2, 0, 0]}>
         <boxGeometry args={[fixW, glassH, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
-      {/* Türblatt — inset um pw */}
-      <mesh castShadow position={[w / 2 - (rahmentyp === 'rahmenlos' ? 0 : pw) - doorW / 2, 0, 0]}>
-        <boxGeometry args={[doorW, glassH, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
+
+      {/* Türblatt — dreht um Scharnier-Pivot */}
+      <group ref={doorGroupRef} position={[hingeX, 0, 0]}>
+        <mesh castShadow position={[doorW / 2, 0, 0]}>
+          <boxGeometry args={[doorW, glassH, t]} />
+          <primitive object={glassMat} attach="material" />
+        </mesh>
+        {/* Griff am Türblatt */}
+        <mesh position={[doorW * 0.72, 0, t / 2 + 0.024]}>
+          <cylinderGeometry args={[0.009, 0.009, 0.28, 10]} />
+          <primitive object={metalMat} attach="material" />
+        </mesh>
+        {[0.145, -0.145].map((y, i) => (
+          <mesh key={i} position={[doorW * 0.72, y, t / 2 + 0.024]}>
+            <sphereGeometry args={[0.011, 8, 8]} />
+            <primitive object={metalMat} attach="material" />
+          </mesh>
+        ))}
+        {/* Scharniere (am Pivot) */}
+        {[h / 2 - 0.13, -h / 2 + 0.13].map((y, i) => (
+          <mesh key={i} position={[0, y, t / 2 + 0.011]}>
+            <cylinderGeometry args={[0.013, 0.013, 0.055, 10]} />
+            <primitive object={metalMat} attach="material" />
+          </mesh>
+        ))}
+      </group>
 
       {/* Rahmen */}
       <FrameProfiles w={w} h={h} rahmentyp={rahmentyp} metalMat={metalMat} />
@@ -324,54 +387,56 @@ function Drehtuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
         <boxGeometry args={[P, h - (rahmentyp === 'rahmenlos' ? 0 : pw * 2), PH * 1.5]} />
         <primitive object={metalMat} attach="material" />
       </mesh>
-
-      {/* Scharniere */}
-      {[h / 2 - 0.13, -h / 2 + 0.13].map((y, i) => (
-        <mesh key={i} position={[midX + 0.001, y, t / 2 + 0.011]}>
-          <cylinderGeometry args={[0.013, 0.013, 0.055, 10]} />
-          <primitive object={metalMat} attach="material" />
-        </mesh>
-      ))}
-
-      {/* Griff */}
-      <mesh position={[midX + doorW * 0.35, 0, t / 2 + 0.024]}>
-        <cylinderGeometry args={[0.009, 0.009, 0.28, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
-      {[0.145, -0.145].map((y, i) => (
-        <mesh key={i} position={[midX + doorW * 0.35, y, t / 2 + 0.024]}>
-          <sphereGeometry args={[0.011, 8, 8]} />
-          <primitive object={metalMat} attach="material" />
-        </mesh>
-      ))}
     </group>
   );
 }
 
 // ── Schiebetür ───────────────────────────────────────────────
-function Schiebetuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
+function Schiebetuer({ w, h, t, glassMat, metalMat, rahmentyp, doorOpen }) {
   const voll    = rahmentyp === 'vollgerahmt';
   const pw      = voll ? P * 1.7 : P;
-  // Glas innerhalb des Rahmens: jedes Panel 52% der Innenbreite → 4% Überlapp mittig
   const innerW  = rahmentyp === 'rahmenlos' ? w : w - pw * 2;
   const pW      = innerW * 0.52;
   const glassH  = rahmentyp === 'rahmenlos' ? h - P * 1.4 : h - pw * 2;
-  // Außenkanten der Glaspaneele beginnen an der Innenkante des Rahmenprofils
   const off     = rahmentyp === 'rahmenlos' ? 0 : pw;
   const frontX  = -(w / 2 - off - pW / 2);
   const backX   =   w / 2 - off - pW / 2;
 
+  const frontRef  = useRef();
+  const slideRef  = useRef(0);
+
+  useFrame(() => {
+    const target = doorOpen ? pW * 0.86 : 0;
+    slideRef.current += (target - slideRef.current) * 0.07;
+    if (frontRef.current) {
+      frontRef.current.position.x = frontX + slideRef.current;
+    }
+  });
+
   return (
     <group>
-      {/* Panel vorne (links) */}
-      <mesh castShadow position={[frontX, 0, t * 0.55]}>
-        <boxGeometry args={[pW, glassH, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
-      {/* Panel hinten (rechts) */}
+      {/* Panel vorne (links) — animiert */}
+      <group ref={frontRef} position={[frontX, 0, t * 0.55]}>
+        <mesh castShadow>
+          <boxGeometry args={[pW, glassH, t]} />
+          <primitive object={glassMat} attach="material" />
+        </mesh>
+        {/* Griff vorne */}
+        <mesh position={[pW * 0.28, 0, t / 2 + 0.018]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.22, 10]} />
+          <primitive object={metalMat} attach="material" />
+        </mesh>
+      </group>
+
+      {/* Panel hinten (rechts) — statisch */}
       <mesh castShadow position={[backX, 0, -t * 0.55]}>
         <boxGeometry args={[pW, glassH, t]} />
         <primitive object={glassMat} attach="material" />
+      </mesh>
+      {/* Griff hinten */}
+      <mesh position={[backX - pW * 0.28, 0, -t * 0.55 - t / 2 - 0.018]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.22, 10]} />
+        <primitive object={metalMat} attach="material" />
       </mesh>
 
       {/* Rahmenprofile */}
@@ -386,30 +451,31 @@ function Schiebetuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
           </mesh>
         ))
       )}
-
-      {/* Griffe */}
-      {[
-        [frontX + pW * 0.28,  t * 0.55 + t / 2 + 0.018],
-        [backX  - pW * 0.28, -t * 0.55 - t / 2 - 0.018],
-      ].map(([x, z], i) => (
-        <mesh key={i} position={[x, 0, z]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.22, 10]} />
-          <primitive object={metalMat} attach="material" />
-        </mesh>
-      ))}
     </group>
   );
 }
 
 // ── Falttür ──────────────────────────────────────────────────
-function Falttuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
+function Falttuer({ w, h, t, glassMat, metalMat, rahmentyp, doorOpen }) {
   const voll   = rahmentyp === 'vollgerahmt';
   const pw     = voll ? P * 1.7 : P;
-  // Glas innerhalb der Rahmenprofile — 2 Paneele mit Mittelgelenk
   const innerW = rahmentyp === 'rahmenlos' ? w : w - pw * 2;
   const panelW = (innerW - P) / 2;
   const glassH = rahmentyp === 'rahmenlos' ? h : h - pw * 2;
   const off    = rahmentyp === 'rahmenlos' ? 0 : pw;
+  // Faltgelenk-Pivot = linke Kante des rechten Paneels ≈ P/2
+  const foldPivotX = P / 2;
+
+  const foldRef      = useRef();
+  const foldAngleRef = useRef(0);
+
+  useFrame(() => {
+    const target = doorOpen ? Math.PI * 0.78 : 0;
+    foldAngleRef.current += (target - foldAngleRef.current) * 0.07;
+    if (foldRef.current) {
+      foldRef.current.rotation.y = foldAngleRef.current;
+    }
+  });
 
   return (
     <group>
@@ -418,11 +484,19 @@ function Falttuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
         <boxGeometry args={[panelW, glassH, t]} />
         <primitive object={glassMat} attach="material" />
       </mesh>
-      {/* Türpaneel (rechts, leicht vorgezogen) */}
-      <mesh castShadow position={[w / 2 - off - panelW / 2, 0, t * 0.4]}>
-        <boxGeometry args={[panelW, glassH, t]} />
-        <primitive object={glassMat} attach="material" />
-      </mesh>
+
+      {/* Türpaneel (rechts) — faltet um Faltgelenk-Pivot */}
+      <group ref={foldRef} position={[foldPivotX, 0, t * 0.4]}>
+        <mesh castShadow position={[panelW / 2, 0, 0]}>
+          <boxGeometry args={[panelW, glassH, t]} />
+          <primitive object={glassMat} attach="material" />
+        </mesh>
+        {/* Griff am Türpaneel */}
+        <mesh position={[panelW * 0.88, 0, t / 2 + 0.020]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.20, 10]} />
+          <primitive object={metalMat} attach="material" />
+        </mesh>
+      </group>
 
       {/* Rahmen */}
       <FrameProfiles w={w} h={h} rahmentyp={rahmentyp} metalMat={metalMat} />
@@ -440,12 +514,6 @@ function Falttuer({ w, h, t, glassMat, metalMat, rahmentyp }) {
           <primitive object={metalMat} attach="material" />
         </mesh>
       ))}
-
-      {/* Griff am Türpaneel */}
-      <mesh position={[w / 2 - off - 0.04, 0, t * 0.4 + t / 2 + 0.020]}>
-        <cylinderGeometry args={[0.008, 0.008, 0.20, 10]} />
-        <primitive object={metalMat} attach="material" />
-      </mesh>
     </group>
   );
 }
@@ -649,12 +717,12 @@ function GlaswandModel({ w, h, t, glassMat, metalMat, rahmentyp }) {
       {/* Rückwand */}
       <mesh receiveShadow position={[0, 0, backZ]}>
         <boxGeometry args={[w + WT, h, WT]} />
-        <meshStandardMaterial map={wallTex} roughness={0.05} metalness={0.02} envMapIntensity={0.60} />
+        <meshStandardMaterial map={wallTex} roughness={0.03} metalness={0.02} envMapIntensity={0.75} />
       </mesh>
       {/* Linke Wand */}
       <mesh receiveShadow position={[leftX, 0, -(D / 2)]}>
         <boxGeometry args={[WT, h, D]} />
-        <meshStandardMaterial map={wallTex} roughness={0.05} metalness={0.02} envMapIntensity={0.60} />
+        <meshStandardMaterial map={wallTex} roughness={0.03} metalness={0.02} envMapIntensity={0.75} />
       </mesh>
       {/* Duschwanne im Nassbereich (hinter dem Glas) */}
       <mesh receiveShadow position={[0, floorY, wetCZ]}>
@@ -689,7 +757,7 @@ function EckeSideGlass({ w, h, t, glassMat, metalMat, rahmentyp }) {
 }
 
 // ── Hauptkomponente ──────────────────────────────────────────
-export default function ShowerModel({ config }) {
+export default function ShowerModel({ config, doorOpen = false }) {
   const groupRef   = useRef();
   const prevConfig = useRef(null);
   const prevBreite = useRef(config?.breite ?? 90);
@@ -745,6 +813,7 @@ export default function ShowerModel({ config }) {
           glassMat={glassMat.current}
           metalMat={metalMat.current}
           rahmentyp={rahmentyp}
+          doorOpen={doorOpen}
         />
         {einbausituation === 'ecke' && (
           <EckeSideGlass
