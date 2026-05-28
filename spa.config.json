@@ -1,0 +1,11 @@
+{
+  "routing": {
+    "index": "index.html",
+    "routes": [
+      {
+        "pattern": ".*",
+        "rewrite": "index.html"
+      }
+    ]
+  }
+}
