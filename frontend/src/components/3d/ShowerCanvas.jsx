@@ -179,9 +179,9 @@ export default function ShowerCanvas({ config, isComplete }) {
             toneMapping:         4,
             toneMappingExposure: 0.88,
             outputColorSpace:    'srgb',
-            powerPreference:     'high-performance',
+            powerPreference:     'default',
           }}
-          shadows="soft"
+          shadows
           frameloop="always"
           camera={{ fov: 34, position: [0, 0, 4.5], near: 0.05, far: 80 }}
           dpr={[1, 2]}
